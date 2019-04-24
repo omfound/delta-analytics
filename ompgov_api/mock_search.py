@@ -120,10 +120,9 @@ def get_captions_by_session(session_id, start=None, limit=None):
 		start: int
 		limit: int
 	"""
-	name = 'captions'
-	data = get_mock_data(name)
-	results = [d for d in data['results'] if 
-			   d['session_id']==str(session_id)]
+	group = get_mock_data("captions_by_session/groupings")[str(session_id)]
+	results = get_mock_data(
+				os.path.join('captions_by_session', group))[str(session_id)]
 	if not start:
 		start = 0
 	if not limit:
