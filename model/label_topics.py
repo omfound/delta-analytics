@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import os
 import numpy as np
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -8,6 +9,8 @@ import pickle
 from collections import defaultdict, Counter
 from sklearn.metrics.pairwise import cosine_similarity
 from operator import itemgetter
+
+BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 
 class LabelTopics(object):
     
@@ -60,11 +63,15 @@ class LabelTopics(object):
         self.topic_labels = []
         self.clean_captions = []
         
-        self.fluff_vectorizer = pickle.load(open('tfidf_vectorizer_obj.pkl','rb'))
-        self.fluff_model = pickle.load(open('fluff_model','rb'))
+        self.fluff_vectorizer = pickle.load(open(
+            os.path.join(BASE_PATH, 'tfidf_vectorizer_obj.pkl'),'rb'))
+        self.fluff_model = pickle.load(open(
+            os.path.join(BASE_PATH, 'fluff_model'),'rb'))
         
-        self.lda_vectorizer = pickle.load(open('tfidf_model_for_lda.pkl','rb'))
-        self.lda_model = pickle.load(open('lda_model.pkl', 'rb')) 
+        self.lda_vectorizer = pickle.load(open(
+            os.path.join(BASE_PATH, 'tfidf_model_for_lda.pkl'),'rb'))
+        self.lda_model = pickle.load(open(
+            os.path.join(BASE_PATH, 'lda_model.pkl'), 'rb')) 
         
         self.topicid_2_label = {0:'water, transportation',
                                1:'transit',
@@ -196,7 +203,8 @@ class LabelTopics(object):
         with that topic, match sessions to topics.
         '''
         self.w2v_model = w2v_model
-        self.topics_dict = pickle.load(open(pickle_path,'rb'))
+        self.topics_dict = pickle.load(open(
+            os.path.join(BASE_PATH, pickle_path),'rb'))
         self.topic_labels = list(self.topics_dict.keys())
         self.topic_word_vecs = list(self.topics_dict.values())
         
