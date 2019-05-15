@@ -18,27 +18,26 @@ class App extends React.Component {
 
   // See this for state-change code:
   // ~ https://reactjs.org/docs/lifting-state-up.html
-  // ~ https://blog.logrocket.com/patterns-for-data-fetching-in-react-981ced7e5c56
+  // ~ https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html#fetching-external-data
   
   constructor(props) {
   	super(props);
-  	this.state = { sessions: [], isFetching: false };
+  	this.state = { 
+  		sessions: [], 
+  		request_url: '' 
+  	};
   }
-
 
   componentDidMount() {
-  	this.setState({...this.state, isFetching: true});
-  	axios.get(`https://open.ompnetwork.org/api/site/400/sessions?limit=10&live=0`)
+  	// returns a promise, so don't do anything after and expect it to happen synchronously
+  	axios.get(`https://open.ompnetwork.org/api/site/400/sessions?limit=3&live=0`)
   		.then((res) => {
-  			console.log(res.data.results);
-  			this.setState({sessions: res.data.results});
+  			this.setState({
+  				sessions: res.data.results,
+  				request_url: 'https://open.ompnetwork.org/api/site/400/sessions?limit=10&live=0'
+  			});
   		});
-  	this.setState({...this.state, isFetching: false});
   }
-
-  // Need to signal child component that state has changed because 
-  // there's lead time in the GET call to the API and because you're
-  // passing stuff as props, which only happens through the constructor!
 
   
   render() {
@@ -54,7 +53,7 @@ class App extends React.Component {
 	      </AppBar>
       	 
 	      <SessionListView 
-	      	isFetching = {this.state.isFetching}
+	      	request_url = {this.state.request_url}
 	      	sessions = {this.state.sessions}
 	      />
 	    </div>
