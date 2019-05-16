@@ -93,6 +93,8 @@ class LabelTopics(object):
                                17:'espanol',
                                18:'procedural',
                                19:'housing'}
+
+        self.label_2_topicid = {v:k for k,v in self.topicid_2_label.items()}
         
     def clean_data(self, stop_word_set=set(stopwords.words('english')),
                    remove_punc=True, lemmatize=True):
@@ -308,6 +310,15 @@ class LabelTopics(object):
                                        + [lab for lab in self.sess_w2v_labels[k] if lab != 'procedural'])
             except:
                 self.topic_labels[k] = set([lab for lab in self.sess_labels[k] if lab != 'procedural'])
+
+    def revert_topic_labels(self, topics, pickle_path='distinct_topic_ids.pkl'):
+        self.topic_id_dict = pickle.load(open(
+            os.path.join(BASE_PATH, pickle_path),'rb'))
+        topic_ids = []
+        for topic in topics:
+            topic_ids.append(self.topic_id_dict[topic])
+        return topic_ids
+
     
     @staticmethod
     def _text2mat(clean_caps, vectorizer):
