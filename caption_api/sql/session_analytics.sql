@@ -4,14 +4,21 @@
 -- number of relevant sessions 
 -- distinct number of locations / sites 
 
+-- Parameters
+-- Param1: Start Date (Datetime)
+-- Param2: End Date (Datetime)
+-- Param3: Topic Name (List of Strings)
+
+-- Grab relevant sessions by date 
 with relevant_sessions as (
 	select 
 		session_id,
 		created_at 
 	from sessions 
-	where created_at::date between '{start_date}' and '{end_date}'
+	where created_at between '{start_date}' and '{end_date}'
 ),
 
+-- Grab relative topics by name
 relevant_topics as (
 	select 
 		topic_id,
@@ -26,27 +33,26 @@ session_topic_analytics as (
 	select 
 		sc.session_id,
 		sc.topic_id as true_topic_id,
-		t.topic_name as true_topic_name,
+		rt.topic_name as true_topic_name,
 		case 
 			when rt.topic_name is null then 'other'
 			else rt.topic_name 
 		end as display_topic_name,
 		sum(sc.duration) as duration 
 	from session_captions sc 
-	left join topics t on sc.topic_id = t.topic_id 
-	left join relevant_topics rt on t.topic_id = rt.topic_id 
+	inner join relevant_topics rt on sc.topic_id = rt.topic_id
 	group by 1, 2, 3, 4
 )
 
 -- gives us average number of minutes spent on a topic per session 
 -- gives us total minutes spent on a topic in all sessions 
--- gives us total minutes of conversation all sessions
+-- gives us number of distinct sessions that mentioned a particular topic
 select 
-	sta.topic_id,
+	sta.true_topic_id,
 	sta.display_topic_name,
-	avg(sta.duration) over (partition by sta.topic_id, sta.display_topic_name) as avg_minutes_per_topic,
-	sum(sta.duration) over (partition by sta.topic_id, sta.display_topic_name) as total_minutes_per_topic,
-	sum(sta.duration) over () as total_minutes,
+	avg(sta.duration) as avg_minutes_per_topic,
+	sum(sta.duration) as total_minutes_per_topic,
 	count(distinct sta.session_id) as session_count
-from session_topic_analytics sta;
+from session_topic_analytics sta
+group by 1, 2;
 
