@@ -23,7 +23,7 @@
   padding-left: 10px;
 }
 
-.AnalyticsView {
+/*.AnalyticsView {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -32,9 +32,9 @@
   font-size: calc(10px + 2vmin);
   padding-top: 10px;
   padding-bottom: 10px;
-}
+}*/
 
-.FilterView {
+/*.FilterView {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -43,13 +43,13 @@
   font-size: calc(10px + 2vmin);
   padding-top: 10px;
   padding-bottom: 10px;
-}
+}*/
 
-.MetricsContainer {
+/*.MetricsContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-}
+}*/
 
 .ChartContainer{
   height: 500px;
