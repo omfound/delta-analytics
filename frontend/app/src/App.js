@@ -115,13 +115,13 @@ function App() {
               </Paper>
             </Grid>
 
-            <Grid item xs={12} md={5} lg={5}>
+            <Grid item xs={12} md={4} lg={4}>
               <Paper className={classes.paper}>
                 <AnalyticsView data={data}/>
               </Paper>
             </Grid>
 
-            <Grid item xs={12} md={2} lg={2}>
+            <Grid item xs={12} md={3} lg={3}>
               <Paper className={classes.paper}>
                 <FilterView />
               </Paper>
