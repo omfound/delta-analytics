@@ -166,54 +166,91 @@ function TextFields() {
 }
 
 
-class FilterView extends React.Component {
+function FilterView(props) {
 
-	constructor(props) {
-  	super(props);
-  		var newDate = new Date();
-		var date = String(newDate.getDate()).padStart(2,'0');
-		var month = String(newDate.getMonth() + 1).padStart(2,'0');
-		var startYear = String(newDate.getFullYear() - 1);
-		var endYear = String(newDate.getFullYear());
-		this.startDateString = `${startYear}-${month}-${date}`;
-		this.endDateString = `${endYear}-${month}-${date}`;	
-  	}
+    const newDate = new Date();
+    const date = String(newDate.getDate()).padStart(2,'0');
+    const month = String(newDate.getMonth() + 1).padStart(2,'0');
+    const startYear = String(newDate.getFullYear() - 1);
+    const endYear = String(newDate.getFullYear());
+    const startDateString = `${startYear}-${month}-${date}`;
+    const endDateString = `${endYear}-${month}-${date}`; 
 
-	render() {
-		return (
-			<div className="FilterView">
-				<Paper elevation={1}>
-					<div className="FilterHeading">
-					 	<Typography variant="h3">Filters</Typography>
-					</div>
-					<div className="FilterContainer">
+    return (
+      <div className="FilterView">
+          <div className="FilterHeading">
+            <Typography variant="h3">Filters</Typography>
+          </div>
+          <div className="FilterContainer">
 
-						<MultipleSelect />
-						<div> 
-							<Typography variant="h4">Start Date</Typography>
-							<DatePickers label = "Start Date" defaultValue = {this.startDateString}/>
-						</div>
-						<div> 
-							<Typography variant="h4">End Date</Typography>
-							<DatePickers label = "End Date" defaultValue = {this.endDateString}/>
-						</div>
-						<div> 
-							<Typography variant="h4">Keywords</Typography>
-							<TextFields />
-						</div>
-						<div>
-							<Typography variant="h4">Search</Typography>
-							<Button color="primary" onClick={() => {alert("Click!")}}>
-							Search
-							</Button>
-						</div>
+            <MultipleSelect />
+            <div> 
+              <Typography variant="h4">Start Date</Typography>
+              <DatePickers label = "Start Date" defaultValue = {startDateString}/>
+            </div>
+            <div> 
+              <Typography variant="h4">End Date</Typography>
+              <DatePickers label = "End Date" defaultValue = {endDateString}/>
+            </div>
+            <div> 
+              <Typography variant="h4">Keywords</Typography>
+              <TextFields />
+            </div>
+            <div>
+              <Typography variant="h4">Search</Typography>
+              <Button color="primary" onClick={() => {alert("Click!")}}>
+              Search
+              </Button>
+            </div>
 
-					</div>
-				</Paper>
-			</div>
-		)
-	}
+          </div>
+      </div>
+    );
 }
+
+
+// class FilterView extends React.Component {
+
+// 	constructor(props) {
+//   	super(props);
+  		
+// 		this.startDateString = `${startYear}-${month}-${date}`;
+// 		this.endDateString = `${endYear}-${month}-${date}`;	
+//   	}
+
+// 	render() {
+// 		return (
+// 			<div className="FilterView">
+// 					<div className="FilterHeading">
+// 					 	<Typography variant="h3">Filters</Typography>
+// 					</div>
+// 					<div className="FilterContainer">
+
+// 						<MultipleSelect />
+// 						<div> 
+// 							<Typography variant="h4">Start Date</Typography>
+// 							<DatePickers label = "Start Date" defaultValue = {this.startDateString}/>
+// 						</div>
+// 						<div> 
+// 							<Typography variant="h4">End Date</Typography>
+// 							<DatePickers label = "End Date" defaultValue = {this.endDateString}/>
+// 						</div>
+// 						<div> 
+// 							<Typography variant="h4">Keywords</Typography>
+// 							<TextFields />
+// 						</div>
+// 						<div>
+// 							<Typography variant="h4">Search</Typography>
+// 							<Button color="primary" onClick={() => {alert("Click!")}}>
+// 							Search
+// 							</Button>
+// 						</div>
+
+// 					</div>
+// 			</div>
+// 		)
+// 	}
+// }
 
 
 

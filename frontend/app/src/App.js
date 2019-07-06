@@ -3,7 +3,6 @@ import React from 'react';
 import axios from 'axios';
 
 import logo from './omf_logo.png';
-import VideoDetail from './VideoDetail';
 import SessionListView from './SessionListView';
 import AnalyticsView from './AnalyticsView';
 import FilterView from './FilterView'
@@ -48,15 +47,23 @@ var sessions = [{"id":"109417","user_id":"400","site_id":"400","created":"156141
 const useStyles = makeStyles(theme => ({
   root: {},
   content: {
-    flexGrow: 1,
-    height: '100vh'
+    background: '#F0F0F7'
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4)
   },
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
     overflow: 'auto',
     flexDirection: 'column'
-  }
+  },
+  appBarSpacer: theme.mixins.toolbar,
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1
+  },
+  toolbar: {}
 }));
 
 
@@ -91,32 +98,38 @@ function App() {
 
     <div className={classes.root}> 
 
-      <AppBar position = "static">
-        <Toolbar>
+      <AppBar position="absolute" className={classes.appBar}>
+        <Toolbar className={classes.toolbar}>
           <img src={logo} alt="logo" height="10%" width="10%"/>
         </Toolbar>
       </AppBar>
 
+      <main className={classes.content}>
+        <div className={classes.appBarSpacer} />
+        <Container className={classes.container} maxWidth="lg">
+          <Grid container spacing={3}>
 
-      <Container className={classes.content} maxWidth="lg">
-        <Grid container spacing={3}>
+            <Grid item xs={12} md={5} lg={5}>
+              <Paper className={classes.paper}>
+                <SessionListView request_url="blah" sessions={sessions} />
+              </Paper>
+            </Grid>
 
-          <Grid item xs={12} md={5} lg={5}>
-            <Paper className={classes.paper}>
-              <SessionListView request_url="blah" sessions={sessions} />
-            </Paper>
+            <Grid item xs={12} md={5} lg={5}>
+              <Paper className={classes.paper}>
+                <AnalyticsView data={data}/>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} md={2} lg={2}>
+              <Paper className={classes.paper}>
+                <FilterView />
+              </Paper>
+            </Grid>
+
           </Grid>
-
-          <Grid item xs={12} md={5} lg={5}>
-            <AnalyticsView data={data}/>
-          </Grid>
-
-          <Grid item xs={12} md={2} lg={2}>
-            <FilterView />
-          </Grid>
-
-        </Grid>
-      </Container>
+        </Container>
+      </main>
     </div>
   );
   
