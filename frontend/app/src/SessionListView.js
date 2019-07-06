@@ -1,35 +1,86 @@
-import React from 'react';
-
-import VideoDetail from './VideoDetail';
-import SessionInfoTabs from './SessionInfoTabs';
-
+import React, { useState } from 'react';
+import ReactPlayer from 'react-player'
+import Youtube from 'react-youtube';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
-import Paper from '@material-ui/core/Paper';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+  sessionContainer: {
+  	width: '100vh',
+  	height: '100vh'
+  },
+  sessionRow: {
+  	// maxWidth: '100vh'
+  },
+  video: {
+  	position: 'absolute',
+  	top: 0,
+  	left: 0
+  },
+  videoContainer: {
+  	position: 'relative',
+  	paddingTop: '56.25%'
+  },
+  fixedHeight: {
+    height: 240,
+  }
+}));
 
 
-class SessionListView extends React.Component {
+function VideoDetail(props) {
 
-	constructor(props) {
-		// props 
-		// ~ a list of sessions
-		super(props);
-		this.state = {
-			request_url: props.request_url || '',
-			sessions: props.sessions || []
-		}
-		console.log("Session List View Constructor::")
-		console.log(this.state)
-	}
+	const classes = useStyles();
+	const url = `https://www.youtube.com/watch?v=${props.videoId}`
+	console.log(url)
 
-	transformSessionsToListItems(sessions) {
+	return(
+		<div className={classes.videoContainer}>
+			<ReactPlayer
+				className={classes.video}
+				url={url}
+				width='100vh'
+				height='100vh'
+			/>
+		</div>
+	);
+}
+
+
+function SessionInfoTabs(props) {
+
+	const [tabIndex, setTabIndex] = useState(0);
+
+	return (
+		<div className='SessionInfoTabs'>
+			<Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+				<Tab label="Information" />
+				<Tab label="Captions" />
+				<Tab label="Documents" />
+			</Tabs>
+			{tabIndex === 0 && <Typography component="div">Information</Typography>}
+			{tabIndex === 1 && <Typography component="div">Captions</Typography>}
+			{tabIndex === 2 && <Typography component="div">Documents</Typography>}
+		</div>
+	);
+}
+
+
+function SessionListView(props) {
+
+	const classes = useStyles();
+
+	const transformSessionsToListItems = (sessions) => {
 		if(sessions.length > 0) {
 			const listItems = sessions.map((session) => 
-				<ListItem>
+				<ListItem className={classes.sessionRow}>
 					<VideoDetail videoId = {session.video_id}/>
-					<SessionInfoTabs session = {session}/>
+					{/*<SessionInfoTabs session = {session}/>*/}
 				</ListItem>
 			);
 			return listItems;
@@ -37,31 +88,12 @@ class SessionListView extends React.Component {
 			return null;
 		}
 	}
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		if(nextProps.request_url !== prevState.request_url) {
-			console.log('getDerivedStateFromProps::')
-			console.log('nextProps', nextProps)
-			console.log('prevState', prevState)
-			return { 
-				request_url: nextProps.request_url,
-				sessions: nextProps.sessions
-			};
-		} else {
-			return null;
-		}
-
-	}
-
-	render() {
-		return (
-			<div className="SessionList">
-				<Paper elevation={1}>
-					<List>{this.transformSessionsToListItems(this.state.sessions)}</List>
-				</Paper>
-			</div>
-		);
-	}
+	
+	return (
+		<div className={classes.sessionContainer}>
+			<List>{transformSessionsToListItems(props.sessions)}</List>
+		</div>
+	);
 }
 
 export default SessionListView;

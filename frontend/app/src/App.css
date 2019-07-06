@@ -2,16 +2,16 @@
   text-align: center;
 }
 
-.ContentView {
+/*.ContentView {
   display: flex;
   flex-direction: row;
-  /*align-items: space-evenly;*/
+  align-items: space-evenly;
   justify-content: space-around;
   font-size: calc(10px + 2vmin);
   background-color: #F0F0F7;
-}
+}*/
 
-.SessionList {
+/*.SessionList {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -21,9 +21,9 @@
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 10px;
-}
+}*/
 
-.AnalyticsView {
+/*.AnalyticsView {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -32,9 +32,9 @@
   font-size: calc(10px + 2vmin);
   padding-top: 10px;
   padding-bottom: 10px;
-}
+}*/
 
-.FilterView {
+/*.FilterView {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -43,13 +43,13 @@
   font-size: calc(10px + 2vmin);
   padding-top: 10px;
   padding-bottom: 10px;
-}
+}*/
 
-.MetricsContainer {
+/*.MetricsContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-}
+}*/
 
 .ChartContainer{
   height: 500px;

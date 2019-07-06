@@ -13,42 +13,6 @@ import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
-
-
-
-// const useStyles = makeStyles(theme => ({
-//   root: {
-//     display: 'flex',
-//     flexWrap: 'wrap',
-//   },
-//   formControl: {
-//     margin: theme.spacing(1),
-//     minWidth: 120,
-//     maxWidth: 300,
-//   },
-//   chips: {
-//     display: 'flex',
-//     flexWrap: 'wrap',
-//   },
-//   chip: {
-//     margin: 2,
-//   },
-//   noLabel: {
-//     marginTop: theme.spacing(3),
-//   },
-// }));
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
 const names = [
   'Oliver Hansen',
   'Van Henry',
@@ -62,18 +26,78 @@ const names = [
   'Kelly Snyder',
 ];
 
-// function getStyles(name, personName, theme) {
-//   return {
-//     fontWeight:
-//       personName.indexOf(name) === -1
-//         ? theme.typography.fontWeightRegular
-//         : theme.typography.fontWeightMedium,
-//   };
-// }
+
+const useStyles = makeStyles(theme => ({
+  filterContainer: {
+    height: '100vh'
+  },
+  filterHeading: {
+    alignItems: 'center'
+  },
+  topicsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingTop: theme.spacing(3)
+  },
+  topicsPicker: {
+    margin: 0,
+    fullWidth: true,
+    display: "flex",
+    flexWrap: "wrap",
+    paddingBottom: theme.spacing(3)
+  },
+  chips: {
+    display:'flex',
+    flexWrap: 'wrap'
+  },
+  chip: {},
+  dateHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(2)
+  },
+  datePicker: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    paddingBottom: theme.spacing(3),
+    fullWidth: true
+  },
+  datePickerElement: {
+    paddingRight: theme.spacing(1),
+    paddingBottom: theme.spacing(1)
+  },
+  keywordHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingTop: theme.spacing(3)
+  },
+  keywordPicker: {
+    margin: 0,
+    fullWidth: true,
+    display: "flex",
+    wrap: "nowrap",
+    paddingBottom: theme.spacing(3)
+  },
+  buttonContainer: {
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  searchButton: {
+    fontSize: '25px'
+  }
+}));
+
+
 
 function MultipleSelect() {
-  // const classes = useStyles();
-  // const theme = useTheme();
+  
+  const classes = useStyles();
   const [personName, setPersonName] = React.useState([]);
 
   function handleChange(event) {
@@ -81,22 +105,21 @@ function MultipleSelect() {
   }
   
   return (
-    <div className='{classes.root}'>
-      <FormControl className='{classes.formControl}'>
-        <InputLabel htmlFor="select-multiple-chip">Chip</InputLabel>
+    <div>
+      <FormControl className={classes.topicsPicker}>
+        <InputLabel htmlFor="select-multiple-chip">Select topics!</InputLabel>
         <Select
           multiple
           value={personName}
           onChange={handleChange}
           input={<Input id="select-multiple-chip" />}
           renderValue={selected => (
-            <div className='{classes.chips}'>
+            <div className={classes.chips}>
               {selected.map(value => (
-                <Chip key={value} label={value} className='{classes.chip}' />
+                <Chip key={value} label={value} className={classes.chip} />
               ))}
             </div>
           )}
-          MenuProps={MenuProps}
         >
           {names.map(name => (
             <MenuItem key={name} value={name}>
@@ -111,30 +134,16 @@ function MultipleSelect() {
   );
 }
 
-
-// const useStyles = makeStyles(theme => ({
-//   container: {
-//     display: 'flex',
-//     flexWrap: 'wrap',
-//   },
-//   textField: {
-//     marginLeft: theme.spacing(1),
-//     marginRight: theme.spacing(1),
-//     width: 200,
-//   },
-// }));
-
 function DatePickers(props) {
-  // const classes = useStyles();
+  const classes = useStyles();
 
   return (
-    <form className='{classes.container}' noValidate>
+    <form noValidate className={classes.datePickerElement}>
       <TextField
         id="date"
         label={props.label}
         type="date"
         defaultValue={props.defaultValue}
-        className='{classes.textField}'
         InputLabelProps={{
           shrink: true,
         }}
@@ -145,6 +154,7 @@ function DatePickers(props) {
 
 function TextFields() {
 
+  const classes = useStyles();
 	const [values, setValues] = React.useState([]);
 
 	const handleChange = event => {
@@ -152,11 +162,11 @@ function TextFields() {
   	};
 
   return (
-  	<form className='{classes.container}' noValidate autoComplete="off">
+  	<form noValidate autoComplete="off">
       <TextField
         id="standard-name"
-        label="Keyword"
-        className='{classes.textField}'
+        label=""
+        className={classes.keywordPicker}
         value={values}
         onChange={handleChange}
         margin="normal"
@@ -166,55 +176,53 @@ function TextFields() {
 }
 
 
-class FilterView extends React.Component {
+function FilterView(props) {
 
-	constructor(props) {
-  	super(props);
-  		var newDate = new Date();
-		var date = String(newDate.getDate()).padStart(2,'0');
-		var month = String(newDate.getMonth() + 1).padStart(2,'0');
-		var startYear = String(newDate.getFullYear() - 1);
-		var endYear = String(newDate.getFullYear());
-		this.startDateString = `${startYear}-${month}-${date}`;
-		this.endDateString = `${endYear}-${month}-${date}`;	
-  	}
+    const newDate = new Date();
+    const date = String(newDate.getDate()).padStart(2,'0');
+    const month = String(newDate.getMonth() + 1).padStart(2,'0');
+    const startYear = String(newDate.getFullYear() - 1);
+    const endYear = String(newDate.getFullYear());
+    const startDateString = `${startYear}-${month}-${date}`;
+    const endDateString = `${endYear}-${month}-${date}`; 
 
-	render() {
-		return (
-			<div className="FilterView">
-				<Paper elevation={1}>
-					<div className="FilterHeading">
-					 	<Typography variant="h3">Filters</Typography>
-					</div>
-					<div className="FilterContainer">
+    const classes = useStyles();
 
-						<MultipleSelect />
-						<div> 
-							<Typography variant="h4">Start Date</Typography>
-							<DatePickers label = "Start Date" defaultValue = {this.startDateString}/>
-						</div>
-						<div> 
-							<Typography variant="h4">End Date</Typography>
-							<DatePickers label = "End Date" defaultValue = {this.endDateString}/>
-						</div>
-						<div> 
-							<Typography variant="h4">Keywords</Typography>
-							<TextFields />
-						</div>
-						<div>
-							<Typography variant="h4">Search</Typography>
-							<Button color="primary" onClick={() => {alert("Click!")}}>
-							Search
-							</Button>
-						</div>
-
-					</div>
-				</Paper>
-			</div>
-		)
-	}
+    return (
+      <div className={classes.filterContainer}>
+          <div className={classes.filterHeading}>
+            <Typography variant="h4">Filters</Typography>
+          </div>
+          <div className={classes.topicsHeader}>
+            <Typography variant="h5">Topics</Typography>
+          </div>
+          <MultipleSelect /> {/* Form class is set inside this component */}
+          <div className={classes.dateHeader}> 
+            <Typography variant="h5">Date Range</Typography>
+          </div>
+          <div className={classes.datePicker}>
+            {/* Form class is set inside these components */}
+            <DatePickers className={classes.datePickerElement} label="Start Date" defaultValue={startDateString}/>
+            <DatePickers className={classes.datePickerElement} label="End Date" defaultValue={endDateString}/>
+          </div> 
+          <div className={classes.keywordHeader}> 
+            <Typography variant="h5">Keywords</Typography>
+          </div>
+          <TextFields /> {/* Form class is set inside this component */}
+          <div className={classes.buttonContainer}>
+            <Button 
+              onClick={() => {alert("Click!")}}
+              className={classes.searchButton}
+              fullWidth
+              variant="contained"
+              color="primary"
+            >
+              Search
+            </Button>
+          </div>
+      </div>
+    );
 }
-
 
 
 export default FilterView;
