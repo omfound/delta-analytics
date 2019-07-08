@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -96,7 +97,6 @@ const useStyles = makeStyles(theme => ({
 
 
 function MultipleSelect() {
-  
   const classes = useStyles();
   const [personName, setPersonName] = React.useState([]);
 
@@ -153,7 +153,6 @@ function DatePickers(props) {
 }
 
 function TextFields() {
-
   const classes = useStyles();
 	const [values, setValues] = React.useState([]);
 
@@ -177,7 +176,6 @@ function TextFields() {
 
 
 function FilterView(props) {
-
     const newDate = new Date();
     const date = String(newDate.getDate()).padStart(2,'0');
     const month = String(newDate.getMonth() + 1).padStart(2,'0');
@@ -185,8 +183,17 @@ function FilterView(props) {
     const endYear = String(newDate.getFullYear());
     const startDateString = `${startYear}-${month}-${date}`;
     const endDateString = `${endYear}-${month}-${date}`; 
-
     const classes = useStyles();
+
+    const searchHandler = () => {
+      axios.get(`https://open.ompnetwork.org/api/site/400/sessions?limit=3&live=0`)
+        .then((res) => {
+            console.log(res.data.results);
+            props.setState({ 
+              sessions: res.data.results
+            });
+         });
+    }
 
     return (
       <div className={classes.filterContainer}>
@@ -211,7 +218,7 @@ function FilterView(props) {
           <TextFields /> {/* Form class is set inside this component */}
           <div className={classes.buttonContainer}>
             <Button 
-              onClick={() => {alert("Click!")}}
+              onClick={searchHandler}
               className={classes.searchButton}
               fullWidth
               variant="contained"

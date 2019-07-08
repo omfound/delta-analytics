@@ -5,8 +5,6 @@ import {
   YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, ResponsiveContainer
 } from 'recharts';
-
-
 import { GavelRounded, RecordVoiceOver } from '@material-ui/icons';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -133,7 +131,6 @@ function MinutesPerTopic() {
 
 
 function AnalyticsView(props) {
-
 	const classes = useStyles();
 
 	return(

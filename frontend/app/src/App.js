@@ -1,6 +1,4 @@
-import React from 'react';
-
-import axios from 'axios';
+import React, { useState } from 'react';
 
 import logo from './omf_logo.png';
 import SessionListView from './SessionListView';
@@ -16,10 +14,6 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-
-
-
-import './App.css';
 
 
 // Mock data 
@@ -69,8 +63,8 @@ const useStyles = makeStyles(theme => ({
 
 
 function App() {
-  
   const classes = useStyles();
+  const [state, setState] = useState({ sessions: [] });
 
   // See this for state-change code:
   // ~ https://reactjs.org/docs/lifting-state-up.html
@@ -112,7 +106,7 @@ function App() {
 
             <Grid item xs={12} md={5} lg={5}>
               <Paper className={classes.paper}>
-                <SessionListView request_url="blah" sessions={sessions} />
+                <SessionListView request_url="blah" sessions={state.sessions} />
               </Paper>
             </Grid>
 
@@ -124,7 +118,7 @@ function App() {
 
             <Grid item xs={12} md={3} lg={3}>
               <Paper className={classes.paper}>
-                <FilterView />
+                <FilterView setState={setState} />
               </Paper>
             </Grid>
 

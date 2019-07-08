@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import ReactPlayer from 'react-player'
-import Youtube from 'react-youtube';
+// import ReactPlayer from 'react-player'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
@@ -41,23 +40,22 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-function VideoDetail(props) {
+// function VideoDetail(props) {
+// 	const classes = useStyles();
+// 	const url = `https://www.youtube.com/watch?v=${props.videoId}`
+// 	console.log(url)
 
-	const classes = useStyles();
-	const url = `https://www.youtube.com/watch?v=${props.videoId}`
-	console.log(url)
-
-	return(
-		<div className={classes.videoContainer}>
-			<ReactPlayer
-				className={classes.video}
-				url={url}
-				height={120}
-				width={213.33}
-			/>
-		</div>
-	);
-}
+// 	return(
+// 		<div className={classes.videoContainer}>
+// 			<ReactPlayer
+// 				className={classes.video}
+// 				url={url}
+// 				height={120}
+// 				width={213.33}
+// 			/>
+// 		</div>
+// 	);
+// }
 
 function InformationTab(props) {
 	const classes = useStyles();
@@ -73,13 +71,15 @@ function InformationTab(props) {
 function CaptionTab(props) {
 	const classes = useStyles();
 
-	return (
-		<ul className={classes.leftAlignList}>
-          {props.session.captions.map(function(caption){
-            return <li>{caption}</li>;
-          })}
-        </ul>
-	);
+	if(props.sessions.hasOwnProperty('captions')) {
+		return (
+			<ul className={classes.leftAlignList}>
+		      {props.session.captions.map(function(caption){
+		        return <li>{caption}</li>;
+		      })}
+		    </ul>
+		);
+	}
 }
 
 function DocumentTab(props) {
@@ -93,10 +93,7 @@ function DocumentTab(props) {
 	);
 }
 
-
 function SessionInfoTabs(props) {
-
-
 	const classes = useStyles();
 	const [tabIndex, setTabIndex] = useState(0);
 
@@ -122,7 +119,6 @@ function SessionInfoTabs(props) {
 
 
 function SessionListView(props) {
-
 	const classes = useStyles();
 
 	const transformSessionsToListItems = (sessions) => {
