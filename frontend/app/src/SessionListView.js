@@ -12,21 +12,18 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   sessionContainer: {
-  	width: '100vh',
   	height: '100vh'
   },
+  sessionHeading: {
+  	alignItems: 'center'
+  },
   sessionRow: {
-  	// maxWidth: '100vh'
+  	display: 'flex',
+  	flexGrow: 1,
+  	flexDirection: 'column'
   },
-  video: {
-  	position: 'absolute',
-  	top: 0,
-  	left: 0
-  },
-  videoContainer: {
-  	position: 'relative',
-  	paddingTop: '56.25%'
-  },
+  video: {},
+  videoContainer: {},
   fixedHeight: {
     height: 240,
   }
@@ -44,8 +41,8 @@ function VideoDetail(props) {
 			<ReactPlayer
 				className={classes.video}
 				url={url}
-				width='100vh'
-				height='100vh'
+				height={120}
+				width={213.33}
 			/>
 		</div>
 	);
@@ -58,7 +55,11 @@ function SessionInfoTabs(props) {
 
 	return (
 		<div className='SessionInfoTabs'>
-			<Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+			<Tabs 
+				value={tabIndex} 
+				onChange={(e, v) => setTabIndex(v)}
+				variant="fullWidth"
+			>
 				<Tab label="Information" />
 				<Tab label="Captions" />
 				<Tab label="Documents" />
@@ -78,10 +79,15 @@ function SessionListView(props) {
 	const transformSessionsToListItems = (sessions) => {
 		if(sessions.length > 0) {
 			const listItems = sessions.map((session) => 
-				<ListItem className={classes.sessionRow}>
-					<VideoDetail videoId = {session.video_id}/>
-					{/*<SessionInfoTabs session = {session}/>*/}
-				</ListItem>
+				<React.Fragment>
+					<Divider />
+					<ListItem className={classes.sessionRow}>
+						{/*<VideoDetail videoId = {session.video_id}/>*/}
+						<Typography variant='h6'>{session.title}</Typography>
+						<SessionInfoTabs session = {session}/>
+					</ListItem>
+					<Divider />
+				</React.Fragment>
 			);
 			return listItems;
 		} else {
@@ -91,6 +97,9 @@ function SessionListView(props) {
 	
 	return (
 		<div className={classes.sessionContainer}>
+			<div className={classes.sessionHeading}>
+            	<Typography variant="h4">Sessions</Typography>
+          	</div>
 			<List>{transformSessionsToListItems(props.sessions)}</List>
 		</div>
 	);

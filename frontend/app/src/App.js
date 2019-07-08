@@ -56,7 +56,8 @@ const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
-    overflow: 'auto',
+    overflowX: 'hidden',
+    overflowY: 'auto',
     flexDirection: 'column'
   },
   appBarSpacer: theme.mixins.toolbar,
