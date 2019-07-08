@@ -17,15 +17,26 @@ const useStyles = makeStyles(theme => ({
   sessionHeading: {
   	alignItems: 'center'
   },
+  sessionList: {
+  	paddingTop: theme.spacing(3)
+  },
   sessionRow: {
   	display: 'flex',
   	flexGrow: 1,
-  	flexDirection: 'column'
+  	flexDirection: 'column',
+  	alignItems: 'space-around'
+  },
+  sessionInfoHolder: {
+  	paddingTop: theme.spacing(1),
+  	height: 80
   },
   video: {},
   videoContainer: {},
   fixedHeight: {
     height: 240,
+  },
+  leftAlignList: {
+  	textAlign: 'left'
   }
 }));
 
@@ -48,13 +59,49 @@ function VideoDetail(props) {
 	);
 }
 
+function InformationTab(props) {
+	const classes = useStyles();
+	return (
+		<ul className={classes.leftAlignList}>
+			<li>Site ID: {props.session.site_id}</li>
+			<li><a href={props.session.video_url} target="_blank">Youtube URL</a></li>
+			<li>Created At: {props.session.date}</li>
+		</ul>
+	);
+}
+
+function CaptionTab(props) {
+	const classes = useStyles();
+
+	return (
+		<ul className={classes.leftAlignList}>
+          {props.session.captions.map(function(caption){
+            return <li>{caption}</li>;
+          })}
+        </ul>
+	);
+}
+
+function DocumentTab(props) {
+	const classes = useStyles();
+	return (
+		<ul className={classes.leftAlignList}>
+			{props.session.documents.map(function(document){
+				return <li><a href={document.url} target="_blank">{document.type}</a></li>;
+			})}
+		</ul>
+	);
+}
+
 
 function SessionInfoTabs(props) {
 
+
+	const classes = useStyles();
 	const [tabIndex, setTabIndex] = useState(0);
 
 	return (
-		<div className='SessionInfoTabs'>
+		<React.Fragment>
 			<Tabs 
 				value={tabIndex} 
 				onChange={(e, v) => setTabIndex(v)}
@@ -64,10 +111,12 @@ function SessionInfoTabs(props) {
 				<Tab label="Captions" />
 				<Tab label="Documents" />
 			</Tabs>
-			{tabIndex === 0 && <Typography component="div">Information</Typography>}
-			{tabIndex === 1 && <Typography component="div">Captions</Typography>}
-			{tabIndex === 2 && <Typography component="div">Documents</Typography>}
-		</div>
+			<div className={classes.sessionInfoHolder}>
+				{tabIndex === 0 && <InformationTab session={props.session} />}
+				{tabIndex === 1 && <CaptionTab session={props.session} />}
+				{tabIndex === 2 && <DocumentTab session={props.session} />}
+			</div>
+		</React.Fragment>
 	);
 }
 
@@ -84,7 +133,7 @@ function SessionListView(props) {
 					<ListItem className={classes.sessionRow}>
 						{/*<VideoDetail videoId = {session.video_id}/>*/}
 						<Typography variant='h6'>{session.title}</Typography>
-						<SessionInfoTabs session = {session}/>
+						<SessionInfoTabs session={session}/>
 					</ListItem>
 					<Divider />
 				</React.Fragment>
@@ -100,7 +149,9 @@ function SessionListView(props) {
 			<div className={classes.sessionHeading}>
             	<Typography variant="h4">Sessions</Typography>
           	</div>
-			<List>{transformSessionsToListItems(props.sessions)}</List>
+			<List className={classes.sessionList}>
+				{transformSessionsToListItems(props.sessions)}
+			</List>
 		</div>
 	);
 }
