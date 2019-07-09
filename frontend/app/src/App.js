@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import moment from 'moment';
 
 import logo from './omf_logo.png';
 import SessionListView from './SessionListView';
 import AnalyticsView from './AnalyticsView';
-import FilterView from './FilterView'
+import FilterView from './FilterView';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -36,7 +38,7 @@ var data = [
 
 var sessions = [{"captions": ['hello is this caption', 'no this is patrick'], "id":"109417","user_id":"400","site_id":"400","created":"1561418795","updated":"1561478971","cuepoints_updated":"1561478971","title":"06-24-19 Council Meeting Video","label":"06-24-19 Council Meeting Video","url":"https:\/\/Lakewood.open.media\/sessions\/109417","embed_url":"https:\/\/Lakewood.open.media\/embed\/sessions\/109417","video_url":"https:\/\/www.youtube.com\/watch?v=mzlptlkOqxU","video_id":"mzlptlkOqxU","video_image_url":"https:\/\/img.youtube.com\/vi\/mzlptlkOqxU\/0.jpg","archive_id":false,"date":"1561402800","documents":[{"id":"17636","file_id":"16675","url":"https:\/\/ompnetwork.s3-us-west-2.amazonaws.com\/sites\/400\/documents\/city-council-meeting-agenda-06-24-2019.pdf?LfBMpt28Tbqbg_zZjUsJZmrTARtEYaiP","label":null,"external_id":null,"session_id":"109417","session_title":"06-24-19 Council Meeting Video","user_id":"400","type":"Agenda","agenda_provider_id":null,"agenda_provider_agenda_id":null,"storage":"attachment","provider":"generic","type_id":"1"},{"id":"17637","file_id":"16677","url":"https:\/\/ompnetwork.s3-us-west-2.amazonaws.com\/sites\/400\/documents\/city-council-meeting-agenda-packet-06-24-2019.pdf?.WlrD.jr2Om2mNeANOkgRv8hIaGRsh29","label":null,"external_id":null,"session_id":"109417","session_title":"06-24-19 Council Meeting Video","user_id":"400","type":"Packet","agenda_provider_id":null,"agenda_provider_agenda_id":null,"storage":"attachment","provider":"generic","type_id":"5"}],"categories":[{"id":"311","user_id":"400","label":"Meetings","position":"0","livestream":"1","hidden":"0"}],"live_status":"0","minutes_status":"0"}]
 
-
+const API = 'http://127.0.0.1:5000'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -64,30 +66,51 @@ const useStyles = makeStyles(theme => ({
 
 function App() {
   const classes = useStyles();
-  const [state, setState] = useState({ sessions: [] });
 
-  // See this for state-change code:
-  // ~ https://reactjs.org/docs/lifting-state-up.html
-  // ~ https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html#fetching-external-data
-  // constructor(props) {
-  // 	super(props);
-  // 	this.state = { 
-  // 		sessions: [], 
-  // 		request_url: ''
-  // 	};
-  // }
+  // const newDate = new Date();
+  // const date = String(newDate.getDate()).padStart(2,'0');
+  // const month = String(newDate.getMonth() + 1).padStart(2,'0');
+  // const startYear = String(newDate.getFullYear());
+  // const endYear = String(newDate.getFullYear());
+  // const startDateString = `${startYear}-${month}-${date}`;
+  // const endDateString = `${endYear}-${month}-${date}`; 
+  const endDateString = moment();
+  const startDateString = endDateString.clone().subtract(1, 'week');
 
-  // Add stateful stuff back in later! 
-  // componentDidMount() {
-  // 	// returns a promise, so don't do anything after and expect it to happen synchronously
-  // 	axios.get(`https://open.ompnetwork.org/api/site/400/sessions?limit=3&live=0`)
-  // 		.then((res) => {
-  // 			this.setState({
-  // 				sessions: res.data.results,
-  // 				request_url: 'https://open.ompnetwork.org/api/site/400/sessions?limit=10&live=0'
-  // 			});
-  // 		});
-  // }
+  const [state, setState] = useState({
+    topics: [],
+    startDate: startDateString.format('YYYY-MM-DD'),
+    endDate: endDateString.format('YYYY-MM-DD'),
+    keyword: '',
+    sessions: []
+  });
+
+  const callApi = () => {
+    const url = `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}`;
+    console.log("hello!")
+    axios.get(url).then((res) => { 
+      setState({...state, sessions: res.data }); 
+    }); 
+  }
+
+  // Set initial sessions 
+  callApi();
+
+  const keywordHandleChange = (event) => {
+    setState({ ...state, keyword: event.target.value });
+  }
+
+  const startDateHandleChange = (event) => {
+    setState({ ...state, startDate: event.target.value });
+  }
+
+  const endDateHandleChange = (event) => {
+    setState({ ...state, endDate: event.target.value });
+  }
+
+  const topicHandleChange = (event) => {
+    setState({ ...state, topics: event.target.value })
+  }
 
 	return (
 
@@ -118,7 +141,14 @@ function App() {
 
             <Grid item xs={12} md={3} lg={3}>
               <Paper className={classes.paper}>
-                <FilterView setState={setState} />
+                <FilterView 
+                  state={state}
+                  keywordHandleChange={keywordHandleChange}
+                  startDateHandleChange={startDateHandleChange}
+                  endDateHandleChange={endDateHandleChange}
+                  topicHandleChange={topicHandleChange}
+                  callApi={callApi}
+                />
               </Paper>
             </Grid>
 

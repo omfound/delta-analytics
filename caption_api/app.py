@@ -1,4 +1,5 @@
 from flask import Flask, g, request, jsonify
+from flask_cors import CORS
 import requests
 import sqlite3
 import time
@@ -7,6 +8,7 @@ import datetime
 DATABASE = 'example.db'
 
 app = Flask(__name__)
+CORS(app)
 
 # database utilities
 # ~ cribbed from http://flask.pocoo.org/docs/1.0/patterns/sqlite3/

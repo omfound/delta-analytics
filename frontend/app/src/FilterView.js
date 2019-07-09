@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -96,22 +95,17 @@ const useStyles = makeStyles(theme => ({
 
 
 
-function MultipleSelect() {
+function MultipleSelect(props) {
   const classes = useStyles();
-  const [personName, setPersonName] = React.useState([]);
 
-  function handleChange(event) {
-    setPersonName(event.target.value);
-  }
-  
   return (
     <div>
       <FormControl className={classes.topicsPicker}>
         <InputLabel htmlFor="select-multiple-chip">Select topics!</InputLabel>
         <Select
           multiple
-          value={personName}
-          onChange={handleChange}
+          value={props.state.topics}
+          onChange={props.topicHandleChange}
           input={<Input id="select-multiple-chip" />}
           renderValue={selected => (
             <div className={classes.chips}>
@@ -147,18 +141,14 @@ function DatePickers(props) {
         InputLabelProps={{
           shrink: true,
         }}
+        onChange={props.handleChange}
       />
     </form>
   );
 }
 
-function TextFields() {
+function TextFields(props) {
   const classes = useStyles();
-	const [values, setValues] = React.useState([]);
-
-	const handleChange = event => {
-    	setValues(event.target.value);
-  	};
 
   return (
   	<form noValidate autoComplete="off">
@@ -166,8 +156,8 @@ function TextFields() {
         id="standard-name"
         label=""
         className={classes.keywordPicker}
-        value={values}
-        onChange={handleChange}
+        value={props.state.keyword}
+        onChange={props.keywordHandleChange}
         margin="normal"
       />
     </form>
@@ -176,24 +166,7 @@ function TextFields() {
 
 
 function FilterView(props) {
-    const newDate = new Date();
-    const date = String(newDate.getDate()).padStart(2,'0');
-    const month = String(newDate.getMonth() + 1).padStart(2,'0');
-    const startYear = String(newDate.getFullYear() - 1);
-    const endYear = String(newDate.getFullYear());
-    const startDateString = `${startYear}-${month}-${date}`;
-    const endDateString = `${endYear}-${month}-${date}`; 
     const classes = useStyles();
-
-    const searchHandler = () => {
-      axios.get(`https://open.ompnetwork.org/api/site/400/sessions?limit=3&live=0`)
-        .then((res) => {
-            console.log(res.data.results);
-            props.setState({ 
-              sessions: res.data.results
-            });
-         });
-    }
 
     return (
       <div className={classes.filterContainer}>
@@ -203,22 +176,35 @@ function FilterView(props) {
           <div className={classes.topicsHeader}>
             <Typography variant="h5">Topics</Typography>
           </div>
-          <MultipleSelect /> {/* Form class is set inside this component */}
+          <MultipleSelect 
+            topicHandleChange={props.topicHandleChange}
+            state={props.state}
+          /> {/* Form class is set inside this component */}
           <div className={classes.dateHeader}> 
             <Typography variant="h5">Date Range</Typography>
           </div>
           <div className={classes.datePicker}>
             {/* Form class is set inside these components */}
-            <DatePickers className={classes.datePickerElement} label="Start Date" defaultValue={startDateString}/>
-            <DatePickers className={classes.datePickerElement} label="End Date" defaultValue={endDateString}/>
+            <DatePickers 
+              className={classes.datePickerElement} 
+              label="Start Date" 
+              defaultValue={props.state.startDate}
+              handleChange={props.startDateHandleChange}
+            />
+            <DatePickers 
+              className={classes.datePickerElement} 
+              label="End Date" 
+              defaultValue={props.state.endDate}
+              handleChange={props.endDateHandleChange}
+            />
           </div> 
           <div className={classes.keywordHeader}> 
             <Typography variant="h5">Keywords</Typography>
           </div>
-          <TextFields /> {/* Form class is set inside this component */}
+          <TextFields keywordHandleChange={props.keywordHandleChange} state={props.state}/> {/* Form class is set inside this component */}
           <div className={classes.buttonContainer}>
             <Button 
-              onClick={searchHandler}
+              onClick={props.callApi}
               className={classes.searchButton}
               fullWidth
               variant="contained"
