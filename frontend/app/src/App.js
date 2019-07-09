@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -18,27 +18,119 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 
 
-// Mock data 
+const API = 'http://127.0.0.1:5000';
 
-var data = [
+const STARTER_TOPICS = ['transit', 'budget', 'health', 'crime', 'economy'];
+const ALL_TOPICS = [
   {
-    "value": 86.85, 
-    "label": "Health", 
-    "total_minutes_per_topic": 608, 
-    "id": "health",
-    "color": "hsl(126, 70%, 50%)"
+    "topic_id": 0, 
+    "topic_name": "water, transportation"
   }, 
   {
-    "value": 57.16, 
-    "label": "Law", 
-    "id": "law",
-    "color": "hsl(277, 70%, 50%)"
+    "topic_id": 2, 
+    "topic_name": "service"
+  }, 
+  {
+    "topic_id": 3, 
+    "topic_name": "health"
+  }, 
+  {
+    "topic_id": 5, 
+    "topic_name": "license"
+  }, 
+  {
+    "topic_id": 6, 
+    "topic_name": "crime"
+  }, 
+  {
+    "topic_id": 7, 
+    "topic_name": "transit"
+  }, 
+  {
+    "topic_id": 8, 
+    "topic_name": "law"
+  }, 
+  {
+    "topic_id": 9, 
+    "topic_name": "public_space"
+  }, 
+  {
+    "topic_id": 11, 
+    "topic_name": "community"
+  }, 
+  {
+    "topic_id": 12, 
+    "topic_name": "education"
+  }, 
+  {
+    "topic_id": 14, 
+    "topic_name": "budget"
+  }, 
+  {
+    "topic_id": 16, 
+    "topic_name": "zoning"
+  }, 
+  {
+    "topic_id": 17, 
+    "topic_name": "espanol"
+  }, 
+  {
+    "topic_id": 18, 
+    "topic_name": "procedural"
+  }, 
+  {
+    "topic_id": 19, 
+    "topic_name": "housing"
+  }, 
+  {
+    "topic_id": 20, 
+    "topic_name": "plenary"
+  }, 
+  {
+    "topic_id": 21, 
+    "topic_name": "land"
+  }, 
+  {
+    "topic_id": 24, 
+    "topic_name": "public_safety"
+  }, 
+  {
+    "topic_id": 25, 
+    "topic_name": "mental_health"
+  }, 
+  {
+    "topic_id": 26, 
+    "topic_name": "public_health"
+  }, 
+  {
+    "topic_id": 27, 
+    "topic_name": "climate_change"
+  }, 
+  {
+    "topic_id": 28, 
+    "topic_name": "agriculture"
+  }, 
+  {
+    "topic_id": 29, 
+    "topic_name": "utilities"
+  }, 
+  {
+    "topic_id": 30, 
+    "topic_name": "legal"
+  }, 
+  {
+    "topic_id": 32, 
+    "topic_name": "transportation"
+  }, 
+  {
+    "topic_id": 33, 
+    "topic_name": "economy"
+  }, 
+  {
+    "topic_id": 34, 
+    "topic_name": "immigration"
   }
-];
-
-var sessions = [{"captions": ['hello is this caption', 'no this is patrick'], "id":"109417","user_id":"400","site_id":"400","created":"1561418795","updated":"1561478971","cuepoints_updated":"1561478971","title":"06-24-19 Council Meeting Video","label":"06-24-19 Council Meeting Video","url":"https:\/\/Lakewood.open.media\/sessions\/109417","embed_url":"https:\/\/Lakewood.open.media\/embed\/sessions\/109417","video_url":"https:\/\/www.youtube.com\/watch?v=mzlptlkOqxU","video_id":"mzlptlkOqxU","video_image_url":"https:\/\/img.youtube.com\/vi\/mzlptlkOqxU\/0.jpg","archive_id":false,"date":"1561402800","documents":[{"id":"17636","file_id":"16675","url":"https:\/\/ompnetwork.s3-us-west-2.amazonaws.com\/sites\/400\/documents\/city-council-meeting-agenda-06-24-2019.pdf?LfBMpt28Tbqbg_zZjUsJZmrTARtEYaiP","label":null,"external_id":null,"session_id":"109417","session_title":"06-24-19 Council Meeting Video","user_id":"400","type":"Agenda","agenda_provider_id":null,"agenda_provider_agenda_id":null,"storage":"attachment","provider":"generic","type_id":"1"},{"id":"17637","file_id":"16677","url":"https:\/\/ompnetwork.s3-us-west-2.amazonaws.com\/sites\/400\/documents\/city-council-meeting-agenda-packet-06-24-2019.pdf?.WlrD.jr2Om2mNeANOkgRv8hIaGRsh29","label":null,"external_id":null,"session_id":"109417","session_title":"06-24-19 Council Meeting Video","user_id":"400","type":"Packet","agenda_provider_id":null,"agenda_provider_agenda_id":null,"storage":"attachment","provider":"generic","type_id":"5"}],"categories":[{"id":"311","user_id":"400","label":"Meetings","position":"0","livestream":"1","hidden":"0"}],"live_status":"0","minutes_status":"0"}]
-
-const API = 'http://127.0.0.1:5000'
+]
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -67,35 +159,32 @@ const useStyles = makeStyles(theme => ({
 function App() {
   const classes = useStyles();
 
-  // const newDate = new Date();
-  // const date = String(newDate.getDate()).padStart(2,'0');
-  // const month = String(newDate.getMonth() + 1).padStart(2,'0');
-  // const startYear = String(newDate.getFullYear());
-  // const endYear = String(newDate.getFullYear());
-  // const startDateString = `${startYear}-${month}-${date}`;
-  // const endDateString = `${endYear}-${month}-${date}`; 
+  // Set up default dates
   const endDateString = moment();
   const startDateString = endDateString.clone().subtract(1, 'week');
 
+  // Initialize state
   const [state, setState] = useState({
-    topics: [],
+    topics: STARTER_TOPICS,
+    all_topics: ALL_TOPICS.map(t => (t.topic_name)),
     startDate: startDateString.format('YYYY-MM-DD'),
     endDate: endDateString.format('YYYY-MM-DD'),
     keyword: '',
     sessions: []
   });
 
-  const callApi = () => {
-    const url = `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}`;
-    console.log("hello!")
-    axios.get(url).then((res) => { 
-      setState({...state, sessions: res.data }); 
+  const [query, setQuery] = useState({ 
+    url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}` 
+  });
+
+  useEffect(() => {
+    console.log("Pulling new data.")
+    axios.get(query.url).then((res) => { 
+      setState({ ...state, sessions: res.data }); 
     }); 
-  }
+  }, [query]);
 
-  // Set initial sessions 
-  callApi();
-
+  // State change handlers
   const keywordHandleChange = (event) => {
     setState({ ...state, keyword: event.target.value });
   }
@@ -110,6 +199,13 @@ function App() {
 
   const topicHandleChange = (event) => {
     setState({ ...state, topics: event.target.value })
+  }
+
+  const searchButtonClick = (event) => {
+    console.log("Setting new search URL.")
+    setQuery({ 
+      url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}` 
+    });
   }
 
 	return (
@@ -135,7 +231,7 @@ function App() {
 
             <Grid item xs={12} md={4} lg={4}>
               <Paper className={classes.paper}>
-                <AnalyticsView data={data}/>
+                <AnalyticsView />
               </Paper>
             </Grid>
 
@@ -147,7 +243,7 @@ function App() {
                   startDateHandleChange={startDateHandleChange}
                   endDateHandleChange={endDateHandleChange}
                   topicHandleChange={topicHandleChange}
-                  callApi={callApi}
+                  searchButtonClick={searchButtonClick}
                 />
               </Paper>
             </Grid>

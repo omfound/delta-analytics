@@ -115,9 +115,9 @@ function MultipleSelect(props) {
             </div>
           )}
         >
-          {names.map(name => (
-            <MenuItem key={name} value={name}>
-              {name}
+          {props.state.all_topics.map(topic => (
+            <MenuItem key={topic} value={topic}>
+              {topic}
             </MenuItem>
           ))}
         </Select>
@@ -204,7 +204,7 @@ function FilterView(props) {
           <TextFields keywordHandleChange={props.keywordHandleChange} state={props.state}/> {/* Form class is set inside this component */}
           <div className={classes.buttonContainer}>
             <Button 
-              onClick={props.callApi}
+              onClick={props.searchButtonClick}
               className={classes.searchButton}
               fullWidth
               variant="contained"
