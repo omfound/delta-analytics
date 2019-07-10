@@ -79,8 +79,11 @@ function App() {
   const classes = useStyles();
 
   // Set up default dates
-  const endDateString = moment();
-  const startDateString = endDateString.clone().subtract(1, 'week');
+  // const endDateString = moment();
+  // const startDateString = endDateString.clone().subtract(1, 'week');
+  // ~ Some good defaults for example DB
+  const endDateString = moment('2018-08-30');
+  const startDateString = moment('2018-08-27');
 
   // Initialize state
   const [state, setState] = useState({
@@ -124,12 +127,12 @@ function App() {
     // if no filters, don't pass topics arguments
     if(state.topics.length === 0) {
       setQuery({ 
-        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}` 
+        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&keyword=${state.keyword}` 
       });
     } else {
       let formatted_topics = state.topics.join(',') ;
       setQuery({ 
-        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}` 
+        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&keyword=${state.keyword}&topic_ids=${formatted_topics}` 
       });
     }
   }

@@ -36,26 +36,13 @@ const useStyles = makeStyles(theme => ({
   },
   leftAlignList: {
   	textAlign: 'left'
+  },
+  captions: {
+  	height: 80,
+  	overflowY: 'auto'
   }
 }));
 
-
-// function VideoDetail(props) {
-// 	const classes = useStyles();
-// 	const url = `https://www.youtube.com/watch?v=${props.videoId}`
-// 	console.log(url)
-
-// 	return(
-// 		<div className={classes.videoContainer}>
-// 			<ReactPlayer
-// 				className={classes.video}
-// 				url={url}
-// 				height={120}
-// 				width={213.33}
-// 			/>
-// 		</div>
-// 	);
-// }
 
 function InformationTab(props) {
 	const classes = useStyles();
@@ -71,13 +58,15 @@ function InformationTab(props) {
 function CaptionTab(props) {
 	const classes = useStyles();
 
-	if(props.sessions.hasOwnProperty('captions')) {
+	if(props.session.hasOwnProperty('captions')) {
 		return (
-			<ul className={classes.leftAlignList}>
-		      {props.session.captions.map(function(caption){
-		        return <li>{caption}</li>;
-		      })}
-		    </ul>
+			<div className={classes.captions}>
+				<ul className={classes.leftAlignList}>
+			      {props.session.captions.slice(1,3).map(function(caption){
+			        return <li>{caption.caption}</li>;
+			      })}
+			    </ul>
+			</div>
 		);
 	}
 }
@@ -127,7 +116,6 @@ function SessionListView(props) {
 				<React.Fragment>
 					<Divider />
 					<ListItem className={classes.sessionRow}>
-						{/*<VideoDetail videoId = {session.video_id}/>*/}
 						<Typography variant='h6'>{session.title}</Typography>
 						<SessionInfoTabs session={session}/>
 					</ListItem>
