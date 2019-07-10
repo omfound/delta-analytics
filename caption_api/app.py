@@ -58,16 +58,17 @@ def get_session_info():
 	start_date = request.args.get('start_date', None)
 	end_date = request.args.get('end_date', None)
 	topic_ids = request.args.get('topic_ids', default_topic_ids)
+	keyword = request.args.get('keyword', None)
+	keyword = None if keyword == '' else keyword
 
 	if start_date and end_date and topic_ids:
 
-		# temporary results object
-		temp_results = []
-
+		# ~ format dates into Unix business
 		unix_start_date = time.mktime(datetime.datetime.strptime(start_date, "%Y-%m-%d").timetuple())
 		unix_end_date = time.mktime(datetime.datetime.strptime(end_date, "%Y-%m-%d").timetuple())
 
-		# ~ make the first call to the OMF API
+		# PULL SESSIONS FROM OMF API
+		temp_results = []
 		temp_api_results = requests.get(
 			'http://open.ompnetwork.org/api/sessions', 
 			params = dict(
@@ -77,14 +78,11 @@ def get_session_info():
 			)
 		).json()
 
-		# ~ save the first results to our return object
-		# ~ record the total number of results to pull 
 		temp_results.extend(temp_api_results["results"])
 		n_results = int(temp_api_results["totalSize"])
 		offset = 500
 
 		while (offset < n_results):
-
 			temp_api_results = requests.get(
 				'http://open.ompnetwork.org/api/sessions', 
 				params = dict(
@@ -100,15 +98,16 @@ def get_session_info():
 			temp_results.extend(temp_api_results["results"])
 			offset = offset + 500
 
-		# ~ from the OMF API, pull caption information for each session 
+		# PULL CAPTIONS FROM OMF API
 		temp_results2 = []
 		for session in temp_results: 
 			captions = requests.get('http://open.ompnetwork.org/api/session/{}/captions'.format(session['id']))
 			session['captions'] = captions.json().get('results', [])
 			temp_results2.append(session)
 
-		# ~ from the Caption Database, pull sessions associated with our topics 
-		relevant_sessions = query_db('''
+		# PULL TOPIC-FILTERED SESSIONS FROM CAPTION DATABASE
+		print("Pulling topic-filtered sessions")
+		relevant_sessions_by_topic = query_db('''
 			select 
 				distinct s.session_id 
 			from sessions s inner join session_captions sc on s.session_id = sc.session_id
@@ -116,7 +115,43 @@ def get_session_info():
 			  and s.created_at < '{}'
 			  and sc.topic_id in ({});
 		'''.format(start_date, end_date, topic_ids))
-		relevant_sessions = [x['session_id'] for x in relevant_sessions]
+		relevant_sessions_by_topic = [x['session_id'] for x in relevant_sessions_by_topic]
+
+		# PULL KEYWORD-FILTERED SESSIONS FROM OMF API
+		# https://open.ompnetwork.org/api/search
+		relevant_sessions_by_keyword = []
+		if keyword:
+
+			print("Pulling keyword-filtered sessions")
+
+			search_results = {}
+			temp_search_results = requests.get(
+				'http://open.ompnetwork.org/api/search', 
+				params = dict(phrase = keyword)
+			).json()
+
+			search_results.update(temp_search_results["results"])
+			n_search_results = int(temp_search_results["totalSize"])
+			search_offset = 10
+
+			while (search_offset < n_search_results):
+				temp_search_results = requests.get(
+					'http://open.ompnetwork.org/api/search', 
+					params = dict(
+						phrase = keyword,
+						start = offset,
+						limit = 10
+					)
+				).json()
+
+				# ~ save the news results to our return object
+				# ~ increment the offset
+				search_results.update(temp_search_results["results"])
+				search_offset = search_offset + 10
+
+			print(search_results.keys())
+			relevant_sessions_by_keyword = [v.get('session_id', None) for k,v in search_results]
+			
 
 		# ~ intersect sessions from OMF API with sessions from Caption Database
 		temp_results3 = ([
@@ -124,7 +159,7 @@ def get_session_info():
 			for x 
 			in temp_results2 
 			if int(x['id'])
-			in relevant_sessions
+			in relevant_sessions_by_topic
 		])
 
 		# ~ assign our temp results back to our final results obj
