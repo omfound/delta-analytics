@@ -20,117 +20,36 @@ import Paper from '@material-ui/core/Paper';
 
 const API = 'http://127.0.0.1:5000';
 
-const STARTER_TOPICS = ['transit', 'budget', 'health', 'crime', 'economy'];
-const ALL_TOPICS = [
-  {
-    "topic_id": 0, 
-    "topic_name": "water, transportation"
-  }, 
-  {
-    "topic_id": 2, 
-    "topic_name": "service"
-  }, 
-  {
-    "topic_id": 3, 
-    "topic_name": "health"
-  }, 
-  {
-    "topic_id": 5, 
-    "topic_name": "license"
-  }, 
-  {
-    "topic_id": 6, 
-    "topic_name": "crime"
-  }, 
-  {
-    "topic_id": 7, 
-    "topic_name": "transit"
-  }, 
-  {
-    "topic_id": 8, 
-    "topic_name": "law"
-  }, 
-  {
-    "topic_id": 9, 
-    "topic_name": "public_space"
-  }, 
-  {
-    "topic_id": 11, 
-    "topic_name": "community"
-  }, 
-  {
-    "topic_id": 12, 
-    "topic_name": "education"
-  }, 
-  {
-    "topic_id": 14, 
-    "topic_name": "budget"
-  }, 
-  {
-    "topic_id": 16, 
-    "topic_name": "zoning"
-  }, 
-  {
-    "topic_id": 17, 
-    "topic_name": "espanol"
-  }, 
-  {
-    "topic_id": 18, 
-    "topic_name": "procedural"
-  }, 
-  {
-    "topic_id": 19, 
-    "topic_name": "housing"
-  }, 
-  {
-    "topic_id": 20, 
-    "topic_name": "plenary"
-  }, 
-  {
-    "topic_id": 21, 
-    "topic_name": "land"
-  }, 
-  {
-    "topic_id": 24, 
-    "topic_name": "public_safety"
-  }, 
-  {
-    "topic_id": 25, 
-    "topic_name": "mental_health"
-  }, 
-  {
-    "topic_id": 26, 
-    "topic_name": "public_health"
-  }, 
-  {
-    "topic_id": 27, 
-    "topic_name": "climate_change"
-  }, 
-  {
-    "topic_id": 28, 
-    "topic_name": "agriculture"
-  }, 
-  {
-    "topic_id": 29, 
-    "topic_name": "utilities"
-  }, 
-  {
-    "topic_id": 30, 
-    "topic_name": "legal"
-  }, 
-  {
-    "topic_id": 32, 
-    "topic_name": "transportation"
-  }, 
-  {
-    "topic_id": 33, 
-    "topic_name": "economy"
-  }, 
-  {
-    "topic_id": 34, 
-    "topic_name": "immigration"
-  }
-]
+const STARTER_TOPICS = ['6', '7', '11', '14'];
+const ALL_TOPICS = {
+    '0': "water, transportation",
+    '2': "service",
+    '3': "health",
+    '5': "license", 
+    '6': "crime",
+    '7': "transit",
+    '8': "law",
+    '9': "public_space",
+    '11': "community",
+    '12': "education",
+    '14': "budget",
+    '16': "zoning",
+    '17': "espanol",
+    '18': "procedural",
+    '19': "housing",
+    '20': "plenary",
+    '21': "land",
+    '24': "public_safety",
+    '25': "mental_health",
+    '26': "public_health",
+    '27': "climate_change",
+    '28': "agriculture",
+    '29': "utilities",
+    '30': "legal",
+    '32': "transportation",
+    '33': "economy",
+    '34': "immigration"
+};
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -166,7 +85,7 @@ function App() {
   // Initialize state
   const [state, setState] = useState({
     topics: STARTER_TOPICS,
-    all_topics: ALL_TOPICS.map(t => (t.topic_name)),
+    all_topics: ALL_TOPICS,
     startDate: startDateString.format('YYYY-MM-DD'),
     endDate: endDateString.format('YYYY-MM-DD'),
     keyword: '',
@@ -178,7 +97,6 @@ function App() {
   });
 
   useEffect(() => {
-    console.log("Pulling new data.")
     axios.get(query.url).then((res) => { 
       setState({ ...state, sessions: res.data }); 
     }); 
@@ -198,14 +116,22 @@ function App() {
   }
 
   const topicHandleChange = (event) => {
+    console.log(event.target.value)
     setState({ ...state, topics: event.target.value })
   }
 
   const searchButtonClick = (event) => {
-    console.log("Setting new search URL.")
-    setQuery({ 
-      url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}` 
-    });
+    // if no filters, don't pass topics arguments
+    if(state.topics.length === 0) {
+      setQuery({ 
+        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}` 
+      });
+    } else {
+      let formatted_topics = state.topics.join(',') ;
+      setQuery({ 
+        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}` 
+      });
+    }
   }
 
 	return (

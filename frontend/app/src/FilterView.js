@@ -13,19 +13,6 @@ import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-
 
 const useStyles = makeStyles(theme => ({
   filterContainer: {
@@ -109,15 +96,15 @@ function MultipleSelect(props) {
           input={<Input id="select-multiple-chip" />}
           renderValue={selected => (
             <div className={classes.chips}>
-              {selected.map(value => (
-                <Chip key={value} label={value} className={classes.chip} />
+              {selected.map(topic_id => (
+                <Chip key={topic_id} label={props.state.all_topics[topic_id]} className={classes.chip} />
               ))}
             </div>
           )}
         >
-          {props.state.all_topics.map(topic => (
-            <MenuItem key={topic} value={topic}>
-              {topic}
+          {Object.keys(props.state.all_topics).map((topic_id, index) => (
+            <MenuItem key={topic_id} value={topic_id}>
+              {props.state.all_topics[topic_id]}
             </MenuItem>
           ))}
         </Select>
