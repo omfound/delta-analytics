@@ -1,12 +1,15 @@
 from flask import Flask, g, request, jsonify
+from flask_cors import CORS
 import requests
 import sqlite3
 import time
 import datetime
 
 DATABASE = 'example.db'
+CAPTION_API = 'http://localhost:5000'
 
 app = Flask(__name__)
+CORS(app)
 
 # database utilities
 # ~ cribbed from http://flask.pocoo.org/docs/1.0/patterns/sqlite3/
@@ -47,37 +50,45 @@ def get_topics():
 @app.route('/sessions', methods=['GET'])
 def get_session_info():
 
+	# final results object
 	results = []
 
 	# parameters
+	default_topic_ids = ','.join(list(str(x) for x in range(0, 35)))
 	start_date = request.args.get('start_date', None)
 	end_date = request.args.get('end_date', None)
+	topic_ids = request.args.get('topic_ids', default_topic_ids)
+	keyword = request.args.get('keyword', None)
+	keyword = None if keyword == '' else keyword
+	topic_ids = default_topic_ids if topic_ids == '' else topic_ids
 
-	if start_date and end_date:
+	if start_date and end_date and topic_ids:
 
-		# ~ make the first call to the API
-		temp_results = requests.get(
+		# ~ format dates into Unix business
+		unix_start_date = time.mktime(datetime.datetime.strptime(start_date, "%Y-%m-%d").timetuple())
+		unix_end_date = time.mktime(datetime.datetime.strptime(end_date, "%Y-%m-%d").timetuple())
+
+		# PULL SESSIONS FROM OMF API
+		temp_results = []
+		temp_api_results = requests.get(
 			'http://open.ompnetwork.org/api/sessions', 
 			params = dict(
-				createdAfter = time.mktime(datetime.datetime.strptime(start_date, "%Y-%m-%d").timetuple()),
-				createdBefore = time.mktime(datetime.datetime.strptime(end_date, "%Y-%m-%d").timetuple()),
+				createdAfter = unix_start_date,
+				createdBefore = unix_end_date,
 				limit = 500
 			)
 		).json()
 
-		# ~ save the first results to our return object
-		# ~ record the total number of results to pull 
-		results.extend(temp_results["results"])
-		n_results = int(temp_results["totalSize"])
+		temp_results.extend(temp_api_results["results"])
+		n_results = int(temp_api_results["totalSize"])
 		offset = 500
 
 		while (offset < n_results):
-
-			temp_results = requests.get(
+			temp_api_results = requests.get(
 				'http://open.ompnetwork.org/api/sessions', 
 				params = dict(
-					createdAfter = time.mktime(datetime.datetime.strptime(start_date, "%Y-%m-%d").timetuple()),
-					createdBefore = time.mktime(datetime.datetime.strptime(end_date, "%Y-%m-%d").timetuple()),
+					createdAfter = unix_start_date,
+					createdBefore = unix_end_date,
 					start = offset,
 					limit = 500
 				)
@@ -85,28 +96,97 @@ def get_session_info():
 
 			# ~ save the news results to our return object
 			# ~ increment the offset
-			results.extend(temp_results["results"])
+			temp_results.extend(temp_api_results["results"])
 			offset = offset + 500
+
+		# PULL CAPTIONS FROM OMF API
+		temp_results2 = []
+		for session in temp_results: 
+			captions = requests.get('http://open.ompnetwork.org/api/session/{}/captions'.format(session['id']))
+			session['captions'] = captions.json().get('results', [])
+			temp_results2.append(session)
+
+		# PULL TOPIC-FILTERED SESSIONS FROM CAPTION DATABASE
+		print("Pulling topic-filtered sessions")
+		relevant_sessions_by_topic = query_db('''
+			select 
+				distinct s.session_id 
+			from sessions s inner join session_captions sc on s.session_id = sc.session_id
+			where s.created_at >= '{}'
+			  and s.created_at < '{}'
+			  and sc.topic_id in ({});
+		'''.format(start_date, end_date, topic_ids))
+		relevant_sessions_by_topic = [x['session_id'] for x in relevant_sessions_by_topic]
+
+		# PULL KEYWORD-FILTERED SESSIONS FROM OMF API
+		# https://open.ompnetwork.org/api/search
+		relevant_sessions_by_keyword = []
+		if keyword:
+
+			print("Pulling keyword-filtered sessions")
+
+			search_results = {}
+			temp_search_results = requests.get(
+				'http://open.ompnetwork.org/api/search', 
+				params = dict(phrase = keyword)
+			).json()
+
+			search_results.update(temp_search_results["results"])
+			n_search_results = int(temp_search_results["totalSize"])
+			search_offset = 10
+
+			while (search_offset < n_search_results):
+				temp_search_results = requests.get(
+					'http://open.ompnetwork.org/api/search', 
+					params = dict(
+						phrase = keyword,
+						start = offset,
+						limit = 10
+					)
+				).json()
+
+				# ~ save the news results to our return object
+				# ~ increment the offset
+				search_results.update(temp_search_results["results"])
+				search_offset = search_offset + 10
+
+			relevant_sessions_by_keyword = [item[1]['session_id'] for item in search_results.items()]
+
+		# ~ intersect sessions from OMF API with sessions from Caption Database
+		temp_results3 = ([
+			x
+			for x 
+			in temp_results2 
+			if (int(x['id']) in relevant_sessions_by_topic)
+		])
+
+		# ~intersect sessions from OMF API with sessions from OMF Search API
+		if keyword:
+			temp_results3 = ([x for x in temp_results3 if x['id'] in relevant_sessions_by_keyword])
+
+		# ~ assign our temp results back to our final results obj
+		results = temp_results3
 
 	return jsonify(results)
 
 @app.route('/session_analytics/', methods=['GET'])
 def get_session_analytics():
 
+	# TODO: this endpoint doesn't take into account the keyword filter but it's not worth it to implement
+	# the workaround right now.
+
 	results = {}
 
 	# parameters
+	default_topic_ids = ','.join(list(str(x) for x in range(0, 35)))
 	start_date = request.args.get('start_date', None)
 	end_date = request.args.get('end_date', None)
-	topics = request.args.get('topics', None)
+	topic_ids = request.args.get('topic_ids', default_topic_ids)
+	topic_ids = default_topic_ids if topic_ids == '' else topic_ids
 	
-
 	# TODO: this whole chunk is a SQL injection waiting to happen
 	# ~ need to properly escape SQL parameter arguments 
-	if start_date and end_date and topics: 
-
-		list_topics = topics.split(',')
-		formatted_topics = ','.join(f"'{topic}'" for topic in list_topics)
+	if start_date and end_date and topic_ids: 
 
 		with open('sql/session_analytics.sql', 'r') as f: 
 			query_template = f.read() 
@@ -114,19 +194,11 @@ def get_session_analytics():
 		query = query_template.format(
 			start_date = start_date,
 			end_date = end_date,
-			topics = formatted_topics
+			topic_ids = topic_ids
 		)
 
 		results = query_db(query)
 
 	return jsonify(results)
-
-def get_topic_analytics():
-
-	# parameters
-	# ==========
-	# ~ topic id 
-	ids = request.args.get('ids', None)
-	return 'Topic analytics'
 
 	

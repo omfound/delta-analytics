@@ -24,7 +24,7 @@ relevant_topics as (
 		topic_id,
 		topic_name 
 	from topics
-	where topic_name in ({topics})
+	where topic_id in ({topic_ids})
 ),
 
 -- gives us on a session x topic level the total minutes spent and 

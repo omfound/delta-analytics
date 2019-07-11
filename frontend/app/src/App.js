@@ -1,11 +1,11 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import moment from 'moment';
 
 import logo from './omf_logo.png';
 import SessionListView from './SessionListView';
 import AnalyticsView from './AnalyticsView';
-import FilterView from './FilterView'
+import FilterView from './FilterView';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -18,31 +18,38 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 
 
+const API = 'http://127.0.0.1:5000';
 
-import './App.css';
-
-
-// Mock data 
-
-var data = [
-  {
-    "value": 86.85, 
-    "label": "Health", 
-    "total_minutes_per_topic": 608, 
-    "id": "health",
-    "color": "hsl(126, 70%, 50%)"
-  }, 
-  {
-    "value": 57.16, 
-    "label": "Law", 
-    "id": "law",
-    "color": "hsl(277, 70%, 50%)"
-  }
-];
-
-var sessions = [{"id":"109417","user_id":"400","site_id":"400","created":"1561418795","updated":"1561478971","cuepoints_updated":"1561478971","title":"06-24-19 Council Meeting Video","label":"06-24-19 Council Meeting Video","url":"https:\/\/Lakewood.open.media\/sessions\/109417","embed_url":"https:\/\/Lakewood.open.media\/embed\/sessions\/109417","video_url":"https:\/\/www.youtube.com\/watch?v=mzlptlkOqxU","video_id":"mzlptlkOqxU","video_image_url":"https:\/\/img.youtube.com\/vi\/mzlptlkOqxU\/0.jpg","archive_id":false,"date":"1561402800","documents":[{"id":"17636","file_id":"16675","url":"https:\/\/ompnetwork.s3-us-west-2.amazonaws.com\/sites\/400\/documents\/city-council-meeting-agenda-06-24-2019.pdf?LfBMpt28Tbqbg_zZjUsJZmrTARtEYaiP","label":null,"external_id":null,"session_id":"109417","session_title":"06-24-19 Council Meeting Video","user_id":"400","type":"Agenda","agenda_provider_id":null,"agenda_provider_agenda_id":null,"storage":"attachment","provider":"generic","type_id":"1"},{"id":"17637","file_id":"16677","url":"https:\/\/ompnetwork.s3-us-west-2.amazonaws.com\/sites\/400\/documents\/city-council-meeting-agenda-packet-06-24-2019.pdf?.WlrD.jr2Om2mNeANOkgRv8hIaGRsh29","label":null,"external_id":null,"session_id":"109417","session_title":"06-24-19 Council Meeting Video","user_id":"400","type":"Packet","agenda_provider_id":null,"agenda_provider_agenda_id":null,"storage":"attachment","provider":"generic","type_id":"5"}],"categories":[{"id":"311","user_id":"400","label":"Meetings","position":"0","livestream":"1","hidden":"0"}],"live_status":"0","minutes_status":"0"}]
-
-
+const STARTER_TOPICS = ['6', '7', '11', '14'];
+const ALL_TOPICS = {
+    '0': "water, transportation",
+    '2': "service",
+    '3': "health",
+    '5': "license", 
+    '6': "crime",
+    '7': "transit",
+    '8': "law",
+    '9': "public_space",
+    '11': "community",
+    '12': "education",
+    '14': "budget",
+    '16': "zoning",
+    '17': "espanol",
+    '18': "procedural",
+    '19': "housing",
+    '20': "plenary",
+    '21': "land",
+    '24': "public_safety",
+    '25': "mental_health",
+    '26': "public_health",
+    '27': "climate_change",
+    '28': "agriculture",
+    '29': "utilities",
+    '30': "legal",
+    '32': "transportation",
+    '33': "economy",
+    '34': "immigration"
+};
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -56,7 +63,8 @@ const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
-    overflow: 'auto',
+    overflowX: 'hidden',
+    overflowY: 'auto',
     flexDirection: 'column'
   },
   appBarSpacer: theme.mixins.toolbar,
@@ -68,31 +76,76 @@ const useStyles = makeStyles(theme => ({
 
 
 function App() {
-  
   const classes = useStyles();
 
-  // See this for state-change code:
-  // ~ https://reactjs.org/docs/lifting-state-up.html
-  // ~ https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html#fetching-external-data
-  // constructor(props) {
-  // 	super(props);
-  // 	this.state = { 
-  // 		sessions: [], 
-  // 		request_url: ''
-  // 	};
-  // }
+  // Set up default dates
+  // const endDateString = moment();
+  // const startDateString = endDateString.clone().subtract(1, 'week');
+  // ~ Some good defaults for example DB
+  const endDateString = moment('2018-08-30');
+  const startDateString = moment('2018-08-27');
 
-  // Add stateful stuff back in later! 
-  // componentDidMount() {
-  // 	// returns a promise, so don't do anything after and expect it to happen synchronously
-  // 	axios.get(`https://open.ompnetwork.org/api/site/400/sessions?limit=3&live=0`)
-  // 		.then((res) => {
-  // 			this.setState({
-  // 				sessions: res.data.results,
-  // 				request_url: 'https://open.ompnetwork.org/api/site/400/sessions?limit=10&live=0'
-  // 			});
-  // 		});
-  // }
+  // Initialize state
+  const [state, setState] = useState({
+    topics: STARTER_TOPICS,
+    all_topics: ALL_TOPICS,
+    startDate: startDateString.format('YYYY-MM-DD'),
+    endDate: endDateString.format('YYYY-MM-DD'),
+    keyword: '',
+    sessions: [],
+    sessionAnalytics: []
+  });
+
+  const [query, setQuery] = useState({ 
+    url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${state.topics}&keyword=${state.keyword}`
+  });
+
+  const [queryAnalytics, setQueryAnalytics] = useState({
+    url: `${API}/session_analytics?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${state.topics}`
+  });
+
+  // trigger api call for session listing
+  useEffect(() => {
+    axios.get(query.url).then((res) => { 
+      setState({ ...state, sessions: res.data }); 
+    }); 
+  }, [query]);
+
+  // trigger api call for analytics view
+  useEffect(() =>{
+    axios.get(queryAnalytics.url).then((res) => {
+      setState({...state, sessionAnalytics: res.data })
+    });
+  }, [queryAnalytics])
+
+  // State change handlers
+  const keywordHandleChange = (event) => {
+    setState({ ...state, keyword: event.target.value });
+  }
+
+  const startDateHandleChange = (event) => {
+    setState({ ...state, startDate: event.target.value });
+  }
+
+  const endDateHandleChange = (event) => {
+    setState({ ...state, endDate: event.target.value });
+  }
+
+  const topicHandleChange = (event) => {
+    console.log(event.target.value)
+    setState({ ...state, topics: event.target.value })
+  }
+
+  const searchButtonClick = (event) => {
+    // if no filters, don't pass topics arguments
+    let formatted_topics = '';
+    if(state.topics.length > 0) {
+      formatted_topics = state.topics.join(',') ;
+    } 
+      
+    setQuery({ url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}&keyword=${state.keyword}` });
+    setQueryAnalytics({ url: `${API}/session_analytics?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}` });
+  }
 
 	return (
 
@@ -111,19 +164,26 @@ function App() {
 
             <Grid item xs={12} md={5} lg={5}>
               <Paper className={classes.paper}>
-                <SessionListView request_url="blah" sessions={sessions} />
+                <SessionListView request_url="blah" sessions={state.sessions} />
               </Paper>
             </Grid>
 
             <Grid item xs={12} md={4} lg={4}>
               <Paper className={classes.paper}>
-                <AnalyticsView data={data}/>
+                <AnalyticsView state={state}/>
               </Paper>
             </Grid>
 
             <Grid item xs={12} md={3} lg={3}>
               <Paper className={classes.paper}>
-                <FilterView />
+                <FilterView 
+                  state={state}
+                  keywordHandleChange={keywordHandleChange}
+                  startDateHandleChange={startDateHandleChange}
+                  endDateHandleChange={endDateHandleChange}
+                  topicHandleChange={topicHandleChange}
+                  searchButtonClick={searchButtonClick}
+                />
               </Paper>
             </Grid>
 

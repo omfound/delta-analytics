@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import ReactPlayer from 'react-player'
-import Youtube from 'react-youtube';
+// import ReactPlayer from 'react-player'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
@@ -12,76 +11,123 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
   sessionContainer: {
-  	width: '100vh',
   	height: '100vh'
   },
+  sessionHeading: {
+  	alignItems: 'center'
+  },
+  sessionList: {
+  	paddingTop: theme.spacing(3)
+  },
   sessionRow: {
-  	// maxWidth: '100vh'
+  	display: 'flex',
+  	flexGrow: 1,
+  	flexDirection: 'column',
+  	alignItems: 'space-around'
   },
-  video: {
-  	position: 'absolute',
-  	top: 0,
-  	left: 0
+  sessionInfoHolder: {
+  	paddingTop: theme.spacing(1),
+  	height: 80
   },
-  videoContainer: {
-  	position: 'relative',
-  	paddingTop: '56.25%'
-  },
+  video: {},
+  videoContainer: {},
   fixedHeight: {
     height: 240,
+  },
+  leftAlignList: {
+  	textAlign: 'left'
+  },
+  captions: {
+  	height: 80,
+  	overflowY: 'auto'
   }
 }));
 
 
-function VideoDetail(props) {
-
+function InformationTab(props) {
 	const classes = useStyles();
-	const url = `https://www.youtube.com/watch?v=${props.videoId}`
-	console.log(url)
-
-	return(
-		<div className={classes.videoContainer}>
-			<ReactPlayer
-				className={classes.video}
-				url={url}
-				width='100vh'
-				height='100vh'
-			/>
-		</div>
+	return (
+		<ul className={classes.leftAlignList}>
+			<li>Site ID: {props.session.site_id}</li>
+			<li><a href={props.session.video_url} target="_blank">Youtube URL</a></li>
+			<li>Created At: {props.session.date}</li>
+		</ul>
 	);
 }
 
+function CaptionTab(props) {
+	const classes = useStyles();
+
+	if(props.session.hasOwnProperty('captions')) {
+		return (
+			<div className={classes.captions}>
+				<ul className={classes.leftAlignList}>
+			      {props.session.captions.slice(1,3).map(function(caption){
+			        return <li>{caption.caption}</li>;
+			      })}
+			    </ul>
+			</div>
+		);
+	} else {
+		return null;
+	}
+}
+
+function DocumentTab(props) {
+	const classes = useStyles();
+
+	if(props.session.hasOwnProperty('documents')) {
+		return (
+			<ul className={classes.leftAlignList}>
+				{props.session.documents.map(function(document){
+					return <li><a href={document.url} target="_blank">{document.type}</a></li>;
+				})}
+			</ul>
+		);
+	} else {
+		return null;
+	}
+}
 
 function SessionInfoTabs(props) {
-
+	const classes = useStyles();
 	const [tabIndex, setTabIndex] = useState(0);
 
 	return (
-		<div className='SessionInfoTabs'>
-			<Tabs value={tabIndex} onChange={(e, v) => setTabIndex(v)}>
+		<React.Fragment>
+			<Tabs 
+				value={tabIndex} 
+				onChange={(e, v) => setTabIndex(v)}
+				variant="fullWidth"
+			>
 				<Tab label="Information" />
 				<Tab label="Captions" />
 				<Tab label="Documents" />
 			</Tabs>
-			{tabIndex === 0 && <Typography component="div">Information</Typography>}
-			{tabIndex === 1 && <Typography component="div">Captions</Typography>}
-			{tabIndex === 2 && <Typography component="div">Documents</Typography>}
-		</div>
+			<div className={classes.sessionInfoHolder}>
+				{tabIndex === 0 && <InformationTab session={props.session} />}
+				{tabIndex === 1 && <CaptionTab session={props.session} />}
+				{tabIndex === 2 && <DocumentTab session={props.session} />}
+			</div>
+		</React.Fragment>
 	);
 }
 
 
 function SessionListView(props) {
-
 	const classes = useStyles();
 
 	const transformSessionsToListItems = (sessions) => {
 		if(sessions.length > 0) {
 			const listItems = sessions.map((session) => 
-				<ListItem className={classes.sessionRow}>
-					<VideoDetail videoId = {session.video_id}/>
-					{/*<SessionInfoTabs session = {session}/>*/}
-				</ListItem>
+				<React.Fragment>
+					<Divider />
+					<ListItem className={classes.sessionRow}>
+						<Typography variant='h6'>{session.title}</Typography>
+						<SessionInfoTabs session={session}/>
+					</ListItem>
+					<Divider />
+				</React.Fragment>
 			);
 			return listItems;
 		} else {
@@ -91,7 +137,12 @@ function SessionListView(props) {
 	
 	return (
 		<div className={classes.sessionContainer}>
-			<List>{transformSessionsToListItems(props.sessions)}</List>
+			<div className={classes.sessionHeading}>
+            	<Typography variant="h4">Sessions</Typography>
+          	</div>
+			<List className={classes.sessionList}>
+				{transformSessionsToListItems(props.sessions)}
+			</List>
 		</div>
 	);
 }
