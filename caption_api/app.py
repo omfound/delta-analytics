@@ -60,6 +60,7 @@ def get_session_info():
 	topic_ids = request.args.get('topic_ids', default_topic_ids)
 	keyword = request.args.get('keyword', None)
 	keyword = None if keyword == '' else keyword
+	topic_ids = default_topic_ids if topic_ids == '' else topic_ids
 
 	if start_date and end_date and topic_ids:
 
@@ -171,20 +172,21 @@ def get_session_info():
 @app.route('/session_analytics/', methods=['GET'])
 def get_session_analytics():
 
+	# TODO: this endpoint doesn't take into account the keyword filter but it's not worth it to implement
+	# the workaround right now.
+
 	results = {}
 
 	# parameters
+	default_topic_ids = ','.join(list(str(x) for x in range(0, 35)))
 	start_date = request.args.get('start_date', None)
 	end_date = request.args.get('end_date', None)
-	topics = request.args.get('topics', None)
+	topic_ids = request.args.get('topic_ids', default_topic_ids)
+	topic_ids = default_topic_ids if topic_ids == '' else topic_ids
 	
-
 	# TODO: this whole chunk is a SQL injection waiting to happen
 	# ~ need to properly escape SQL parameter arguments 
-	if start_date and end_date and topics: 
-
-		list_topics = topics.split(',')
-		formatted_topics = ','.join(f"'{topic}'" for topic in list_topics)
+	if start_date and end_date and topic_ids: 
 
 		with open('sql/session_analytics.sql', 'r') as f: 
 			query_template = f.read() 
@@ -192,7 +194,7 @@ def get_session_analytics():
 		query = query_template.format(
 			start_date = start_date,
 			end_date = end_date,
-			topics = formatted_topics
+			topic_ids = topic_ids
 		)
 
 		results = query_db(query)

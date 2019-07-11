@@ -92,18 +92,31 @@ function App() {
     startDate: startDateString.format('YYYY-MM-DD'),
     endDate: endDateString.format('YYYY-MM-DD'),
     keyword: '',
-    sessions: []
+    sessions: [],
+    sessionAnalytics: []
   });
 
   const [query, setQuery] = useState({ 
-    url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}` 
+    url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${state.topics}&keyword=${state.keyword}`
   });
 
+  const [queryAnalytics, setQueryAnalytics] = useState({
+    url: `${API}/session_analytics?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${state.topics}`
+  });
+
+  // trigger api call for session listing
   useEffect(() => {
     axios.get(query.url).then((res) => { 
       setState({ ...state, sessions: res.data }); 
     }); 
   }, [query]);
+
+  // trigger api call for analytics view
+  useEffect(() =>{
+    axios.get(queryAnalytics.url).then((res) => {
+      setState({...state, sessionAnalytics: res.data })
+    });
+  }, [queryAnalytics])
 
   // State change handlers
   const keywordHandleChange = (event) => {
@@ -125,16 +138,13 @@ function App() {
 
   const searchButtonClick = (event) => {
     // if no filters, don't pass topics arguments
-    if(state.topics.length === 0) {
-      setQuery({ 
-        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&keyword=${state.keyword}` 
-      });
-    } else {
-      let formatted_topics = state.topics.join(',') ;
-      setQuery({ 
-        url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&keyword=${state.keyword}&topic_ids=${formatted_topics}` 
-      });
-    }
+    let formatted_topics = '';
+    if(state.topics.length > 0) {
+      formatted_topics = state.topics.join(',') ;
+    } 
+      
+    setQuery({ url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}&keyword=${state.keyword}` });
+    setQueryAnalytics({ url: `${API}/session_analytics?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}` });
   }
 
 	return (
@@ -160,7 +170,7 @@ function App() {
 
             <Grid item xs={12} md={4} lg={4}>
               <Paper className={classes.paper}>
-                <AnalyticsView />
+                <AnalyticsView state={state}/>
               </Paper>
             </Grid>
 
