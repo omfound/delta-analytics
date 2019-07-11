@@ -68,18 +68,25 @@ function CaptionTab(props) {
 			    </ul>
 			</div>
 		);
+	} else {
+		return null;
 	}
 }
 
 function DocumentTab(props) {
 	const classes = useStyles();
-	return (
-		<ul className={classes.leftAlignList}>
-			{props.session.documents.map(function(document){
-				return <li><a href={document.url} target="_blank">{document.type}</a></li>;
-			})}
-		</ul>
-	);
+
+	if(props.session.hasOwnProperty('documents')) {
+		return (
+			<ul className={classes.leftAlignList}>
+				{props.session.documents.map(function(document){
+					return <li><a href={document.url} target="_blank">{document.type}</a></li>;
+				})}
+			</ul>
+		);
+	} else {
+		return null;
+	}
 }
 
 function SessionInfoTabs(props) {

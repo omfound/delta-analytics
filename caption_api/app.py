@@ -149,18 +149,19 @@ def get_session_info():
 				search_results.update(temp_search_results["results"])
 				search_offset = search_offset + 10
 
-			print(search_results.keys())
-			relevant_sessions_by_keyword = [v.get('session_id', None) for k,v in search_results]
-			
+			relevant_sessions_by_keyword = [item[1]['session_id'] for item in search_results.items()]
 
 		# ~ intersect sessions from OMF API with sessions from Caption Database
 		temp_results3 = ([
 			x
 			for x 
 			in temp_results2 
-			if int(x['id'])
-			in relevant_sessions_by_topic
+			if (int(x['id']) in relevant_sessions_by_topic)
 		])
+
+		# ~intersect sessions from OMF API with sessions from OMF Search API
+		if keyword:
+			temp_results3 = ([x for x in temp_results3 if x['id'] in relevant_sessions_by_keyword])
 
 		# ~ assign our temp results back to our final results obj
 		results = temp_results3
