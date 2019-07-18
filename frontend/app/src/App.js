@@ -22,33 +22,33 @@ const API = 'http://127.0.0.1:5000';
 
 const STARTER_TOPICS = ['6', '7', '11', '14'];
 const ALL_TOPICS = {
-    '0': "water, transportation",
-    '2': "service",
-    '3': "health",
-    '5': "license", 
-    '6': "crime",
-    '7': "transit",
-    '8': "law",
-    '9': "public_space",
-    '11': "community",
-    '12': "education",
-    '14': "budget",
-    '16': "zoning",
-    '17': "espanol",
-    '18': "procedural",
-    '19': "housing",
-    '20': "plenary",
-    '21': "land",
-    '24': "public_safety",
-    '25': "mental_health",
-    '26': "public_health",
-    '27': "climate_change",
-    '28': "agriculture",
-    '29': "utilities",
-    '30': "legal",
-    '32': "transportation",
-    '33': "economy",
-    '34': "immigration"
+    '0': 'Water, Transportation',
+    '2': 'Service',
+    '3': 'Health',
+    '5': 'License',
+    '6': 'Crime',
+    '7': 'Transit',
+    '8': 'Law',
+    '9': 'Public Space',
+    '11': 'Community',
+    '12': 'Education',
+    '14': 'Budget',
+    '16': 'Zoning',
+    '17': 'Espanol',
+    '18': 'Procedural',
+    '19': 'Housing',
+    '20': 'Plenary',
+    '21': 'Land',
+    '24': 'Public Safety',
+    '25': 'Mental Health',
+    '26': 'Public Health',
+    '27': 'Climate Change',
+    '28': 'Agriculture',
+    '29': 'Utilities',
+    '30': 'Legal',
+    '32': 'Transportation',
+    '33': 'Economy',
+    '34': 'Immigration',
 };
 
 const useStyles = makeStyles(theme => ({
@@ -82,8 +82,8 @@ function App() {
   // const endDateString = moment();
   // const startDateString = endDateString.clone().subtract(1, 'week');
   // ~ Some good defaults for example DB
-  const endDateString = moment('2018-08-30');
-  const startDateString = moment('2018-08-27');
+  const startDateString = moment('2019-01-01');
+  const endDateString = moment('2019-01-27');
 
   // Initialize state
   const [state, setState] = useState({

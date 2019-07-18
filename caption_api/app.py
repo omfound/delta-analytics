@@ -5,7 +5,7 @@ import sqlite3
 import time
 import datetime
 
-DATABASE = 'example.db'
+DATABASE = 'example_db_2019.db'
 CAPTION_API = 'http://localhost:5000'
 
 app = Flask(__name__)
