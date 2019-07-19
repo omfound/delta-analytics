@@ -5,7 +5,7 @@ import sqlite3
 import time
 import datetime
 
-DATABASE = 'example.db'
+DATABASE = 'example_db_2019.db'
 CAPTION_API = 'http://localhost:5000'
 
 app = Flask(__name__)
@@ -107,7 +107,6 @@ def get_session_info():
 			temp_results2.append(session)
 
 		# PULL TOPIC-FILTERED SESSIONS FROM CAPTION DATABASE
-		print("Pulling topic-filtered sessions")
 		relevant_sessions_by_topic = query_db('''
 			select 
 				distinct s.session_id 
@@ -169,7 +168,7 @@ def get_session_info():
 
 	return jsonify(results)
 
-@app.route('/session_analytics/', methods=['GET'])
+@app.route('/session_analytics', methods=['GET'])
 def get_session_analytics():
 
 	# TODO: this endpoint doesn't take into account the keyword filter but it's not worth it to implement
@@ -199,6 +198,7 @@ def get_session_analytics():
 
 		results = query_db(query)
 
+	print(len(results), " analytics results found.")
 	return jsonify(results)
 
 	

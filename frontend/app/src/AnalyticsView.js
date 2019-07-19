@@ -120,7 +120,6 @@ function MinutesPerTopicByTime() {
 }
 
 function MinutesPerTopic(props) {
-	console.log(props.sessionAnalytics)
 	return (
 		<ResponsiveContainer>
 			<PieChart>
@@ -178,7 +177,7 @@ function AnalyticsView(props) {
 			</div>
 			<div className={classes.minutesPerTopic}>
 				<Typography variant="h6">Minutes Per Topic</Typography>
-				<MinutesPerTopic sessionAnalytics={props.state.sessionAnalytics}/>
+				<MinutesPerTopic sessionAnalytics={props.data.sessionAnalytics}/>
 			</div>
 		</div>
 		
