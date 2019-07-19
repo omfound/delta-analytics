@@ -98,6 +98,15 @@ const useStyles = makeStyles(theme => ({
   	}
 }));
 
+function sumProperty(arr, type) {
+	return arr.reduce((total, obj) => {
+		if (typeof obj[type] === 'string') {
+			return total + Number(obj[type]);
+		}
+		return total + obj[type]
+	}, 0);
+}
+
 function MinutesPerTopicByTime() {
 	return (
 		<ResponsiveContainer>
@@ -133,9 +142,10 @@ function MinutesPerTopic(props) {
 		          fill="#8884d8"
 		          paddingAngle={5}
 		          dataKey="total_minutes_per_topic"
+		          nameKey="display_topic_name"
 		        >
 		          {
-		            props.sessionAnalytics.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+		            props.sessionAnalytics.map((entry) => <Cell key={`cell-${entry['true_topic_id']}`} fill={COLORS[entry['true_topic_id'] % COLORS.length]} />)
 		          }
 		        </Pie>
 		        <Legend layout='vertical' align='right' verticalAlign='middle' />
@@ -159,7 +169,9 @@ function AnalyticsView(props) {
 					<GavelRounded className={classes.icon}/> 
 					<div className={classes.metricData}>
 						{/*Replace with prop*/}
-						<Typography variant="h5">1000</Typography>
+						<Typography variant="h5">
+							{sumProperty(props.state.sessionAnalytics, 'session_count')}
+						</Typography>
 						<Typography variant="caption">Sessions</Typography>
 					</div>
 				</div>
@@ -167,7 +179,9 @@ function AnalyticsView(props) {
 					<RecordVoiceOver className={classes.icon}/>
 					<div className={classes.metricData}>
 						{/*Replace with prop*/}
-						<Typography variant="h5">1234</Typography>
+						<Typography variant="h5">
+							{sumProperty(props.state.sessionAnalytics, 'total_minutes_per_topic')}
+						</Typography>
 						<Typography variant="caption">Minutes of Conversation</Typography>
 					</div>
 				</div>
