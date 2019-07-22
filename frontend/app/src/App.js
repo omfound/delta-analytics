@@ -51,7 +51,7 @@ function App() {
   // const endDateString = moment();
   // const startDateString = endDateString.clone().subtract(1, 'week');
   // ~ Some good defaults for example DB
-  const endDateString = moment('2018-08-30');
+  const endDateString = moment('2018-09-01');
   const startDateString = moment('2018-08-27');
 
   // Set up query builder utilities
