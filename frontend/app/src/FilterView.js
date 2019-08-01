@@ -13,6 +13,36 @@ import Chip from '@material-ui/core/Chip';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 
+const ALL_TOPICS = {
+    '0': "water, transportation",
+    '2': "service",
+    '3': "health",
+    '5': "license", 
+    '6': "crime",
+    '7': "transit",
+    '8': "law",
+    '9': "public_space",
+    '11': "community",
+    '12': "education",
+    '14': "budget",
+    '16': "zoning",
+    '17': "espanol",
+    '18': "procedural",
+    '19': "housing",
+    '20': "plenary",
+    '21': "land",
+    '24': "public_safety",
+    '25': "mental_health",
+    '26': "public_health",
+    '27': "climate_change",
+    '28': "agriculture",
+    '29': "utilities",
+    '30': "legal",
+    '32': "transportation",
+    '33': "economy",
+    '34': "immigration"
+};
+
 
 const useStyles = makeStyles(theme => ({
   filterContainer: {
@@ -97,14 +127,14 @@ function MultipleSelect(props) {
           renderValue={selected => (
             <div className={classes.chips}>
               {selected.map(topic_id => (
-                <Chip key={topic_id} label={props.state.all_topics[topic_id]} className={classes.chip} />
+                <Chip key={topic_id} label={ALL_TOPICS[topic_id]} className={classes.chip} />
               ))}
             </div>
           )}
         >
-          {Object.keys(props.state.all_topics).map((topic_id, index) => (
+          {Object.keys(ALL_TOPICS).map((topic_id, index) => (
             <MenuItem key={topic_id} value={topic_id}>
-              {props.state.all_topics[topic_id]}
+              {ALL_TOPICS[topic_id]}
             </MenuItem>
           ))}
         </Select>

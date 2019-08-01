@@ -140,9 +140,13 @@ function SessionListView(props) {
 			<div className={classes.sessionHeading}>
             	<Typography variant="h4">Sessions</Typography>
           	</div>
-			<List className={classes.sessionList}>
-				{transformSessionsToListItems(props.sessions)}
-			</List>
+
+          	{ props.isLoading ? 
+          		(<div>Loading ...</div>) : 
+          		<List className={classes.sessionList}>
+					{transformSessionsToListItems(props.sessions)}
+				</List>
+          	}
 		</div>
 	);
 }
