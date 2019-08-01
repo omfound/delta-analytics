@@ -22,3 +22,4 @@ This repository houses work completed by Delta Analytics teams as part of their 
 
 ## Usage
 
+To run the app locally, run `./run_local.sh` in a terminal. Note that the backend API is fairly slow, so it may take some time to load sessions into view.
