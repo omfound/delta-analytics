@@ -169,7 +169,7 @@ function AnalyticsView(props) {
 					<div className={classes.metricData}>
 						{/*Replace with prop*/}
 						<Typography variant="h5">
-							{sumProperty(props.state.sessionAnalytics, 'session_count')}
+							{sumProperty(props.data.sessionAnalytics, 'session_count')}
 						</Typography>
 						<Typography variant="caption">Sessions</Typography>
 					</div>
@@ -179,7 +179,7 @@ function AnalyticsView(props) {
 					<div className={classes.metricData}>
 						{/*Replace with prop*/}
 						<Typography variant="h5">
-							{sumProperty(props.state.sessionAnalytics, 'total_minutes_per_topic')}
+							{sumProperty(props.data.sessionAnalytics, 'total_minutes_per_topic')}
 						</Typography>
 						<Typography variant="caption">Minutes of Conversation</Typography>
 					</div>

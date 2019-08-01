@@ -4,9 +4,13 @@ import requests
 import sqlite3
 import time
 import datetime
+import os 
 
-DATABASE = 'example_db_2019.db'
+
 CAPTION_API = 'http://localhost:5000'
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+DATABASE = os.path.join(DIR_PATH, 'example_db_2019.db')
+
 
 app = Flask(__name__)
 CORS(app)
@@ -187,7 +191,8 @@ def get_session_analytics():
 	# ~ need to properly escape SQL parameter arguments 
 	if start_date and end_date and topic_ids: 
 
-		with open('sql/session_analytics.sql', 'r') as f: 
+		session_analytics_file = os.path.join(DIR_PATH, 'sql/session_analytics.sql')
+		with open(session_analytics_file, 'r') as f: 
 			query_template = f.read() 
 
 		query = query_template.format(
