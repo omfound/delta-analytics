@@ -20,3 +20,5 @@ This repository houses work completed by Delta Analytics teams as part of their 
 1. Building a model to categorize transcribed captions of local government meetings into a broad set of topics (2018) 
 2. Developing a prototype visualization and search tool that leverages the categorization model (2019)
 
+## Usage
+
