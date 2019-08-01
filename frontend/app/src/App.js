@@ -20,37 +20,6 @@ import Paper from '@material-ui/core/Paper';
 
 const API = 'http://127.0.0.1:5000';
 
-const STARTER_TOPICS = ['6', '7', '11', '14'];
-const ALL_TOPICS = {
-    '0': "water, transportation",
-    '2': "service",
-    '3': "health",
-    '5': "license", 
-    '6': "crime",
-    '7': "transit",
-    '8': "law",
-    '9': "public_space",
-    '11': "community",
-    '12': "education",
-    '14': "budget",
-    '16': "zoning",
-    '17': "espanol",
-    '18': "procedural",
-    '19': "housing",
-    '20': "plenary",
-    '21': "land",
-    '24': "public_safety",
-    '25': "mental_health",
-    '26': "public_health",
-    '27': "climate_change",
-    '28': "agriculture",
-    '29': "utilities",
-    '30': "legal",
-    '32': "transportation",
-    '33': "economy",
-    '34': "immigration"
-};
-
 const useStyles = makeStyles(theme => ({
   root: {},
   content: {
@@ -82,41 +51,53 @@ function App() {
   // const endDateString = moment();
   // const startDateString = endDateString.clone().subtract(1, 'week');
   // ~ Some good defaults for example DB
-  const endDateString = moment('2018-08-30');
+  const endDateString = moment('2018-09-01');
   const startDateString = moment('2018-08-27');
+
+  // Set up query builder utilities
+
+  const buildQueryString = function(start_date, end_date, topic_ids, keyword) {
+    let formatted_topic_ids = '';
+    if(topic_ids.length > 0) {
+      formatted_topic_ids = topic_ids.join(',');
+    }
+
+    return `start_date=${start_date}&end_date=${end_date}&topic_ids=${formatted_topic_ids}&keyword=${keyword}`;
+  }
 
   // Initialize state
   const [state, setState] = useState({
-    topics: STARTER_TOPICS,
-    all_topics: ALL_TOPICS,
+    topics: ['6', '7', '11', '14'],
     startDate: startDateString.format('YYYY-MM-DD'),
     endDate: endDateString.format('YYYY-MM-DD'),
-    keyword: '',
-    sessions: [],
-    sessionAnalytics: []
+    keyword: ''
   });
+  const [data, setData] = useState({ sessions: [] });
+  const [analytics_data, setAnalyticsData] = useState({ sessionAnalytics: [] });
+  const [query, setQuery] = useState(buildQueryString(state.startDate, state.endDate, state.topics, state.keyword));
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [query, setQuery] = useState({ 
-    url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${state.topics}&keyword=${state.keyword}`
-  });
-
-  const [queryAnalytics, setQueryAnalytics] = useState({
-    url: `${API}/session_analytics?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${state.topics}`
-  });
-
-  // trigger api call for session listing
+  // Effect to update analytics and session listings
   useEffect(() => {
-    axios.get(query.url).then((res) => { 
-      setState({ ...state, sessions: res.data }); 
-    }); 
-  }, [query]);
 
-  // trigger api call for analytics view
-  useEffect(() =>{
-    axios.get(queryAnalytics.url).then((res) => {
-      setState({...state, sessionAnalytics: res.data })
-    });
-  }, [queryAnalytics])
+    let listing_url = `${API}/sessions?${query}`;
+    let analytics_url = `${API}/session_analytics?${query}`;
+
+    setIsLoading(true);
+    axios
+      .get(listing_url)
+      .then((res) => { 
+        setData({ ...data, sessions: res.data }); 
+      })
+      .then(() => {
+        setIsLoading(false);
+      }); 
+
+    axios.get(analytics_url).then((res) => { 
+      setAnalyticsData({ ...analytics_data, sessionAnalytics: res.data }); 
+    }); 
+
+  }, [query]);
 
   // State change handlers
   const keywordHandleChange = (event) => {
@@ -132,19 +113,11 @@ function App() {
   }
 
   const topicHandleChange = (event) => {
-    console.log(event.target.value)
     setState({ ...state, topics: event.target.value })
   }
 
   const searchButtonClick = (event) => {
-    // if no filters, don't pass topics arguments
-    let formatted_topics = '';
-    if(state.topics.length > 0) {
-      formatted_topics = state.topics.join(',') ;
-    } 
-      
-    setQuery({ url: `${API}/sessions?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}&keyword=${state.keyword}` });
-    setQueryAnalytics({ url: `${API}/session_analytics?start_date=${state.startDate}&end_date=${state.endDate}&topic_ids=${formatted_topics}` });
+    setQuery(buildQueryString(state.startDate, state.endDate, state.topics, state.keyword));
   }
 
 	return (
@@ -164,13 +137,13 @@ function App() {
 
             <Grid item xs={12} md={5} lg={5}>
               <Paper className={classes.paper}>
-                <SessionListView request_url="blah" sessions={state.sessions} />
+                <SessionListView isLoading={isLoading} sessions={data.sessions} />
               </Paper>
             </Grid>
 
             <Grid item xs={12} md={4} lg={4}>
               <Paper className={classes.paper}>
-                <AnalyticsView state={state}/>
+                <AnalyticsView data={analytics_data}/>
               </Paper>
             </Grid>
 
