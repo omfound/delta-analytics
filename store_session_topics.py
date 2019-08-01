@@ -1,12 +1,12 @@
 from ompgov_api.search import get_sessions, get_captions_by_session, get_session_by_id
-from model import tag_captions
+#from model import tag_captions
 import sqlite3
 from datetime import datetime as dt
 from contextlib import closing
 import pickle
 import argparse
 
-DB_FILE = 'example_topic_tagged.db'
+DB_FILE = 'caption_api/example.db'
 
 class DuplicateSessionError(Exception):
 	pass
@@ -26,10 +26,14 @@ def store_topic_key(db_file=DB_FILE):
 			CREATE TABLE topics 
 			(topic_id int, topic_name text)''', db_file=db_file)
 		with open("distinct_topic_ids.pkl","rb") as f:
-			topic_labels = pickle.load(f)
+			 raw_labels = pickle.load(f)
+			 topic_labels = {
+			 	k.replace('_',' ').title():v for 
+			 	k,v in raw_labels.items()}
 		exec_query('INSERT INTO topics VALUES (?,?)', db_file, 
 			((v,k) for (k,v) in sorted(topic_labels.items(),key=lambda x:x[1])))
 	else:
+		print("TABLE already exists")
 		pass
 
 def db_has_table(table, db_file=DB_FILE):
@@ -107,8 +111,11 @@ def store_session_data(session_id, db_file=DB_FILE):
 		validate_new_session(session_id, 'session_captions', db_file=db_file)
 		print("Gathering session captions")
 		captions = get_captions_by_session(session_id)['results']
-		store_captions(captions, db_file=db_file)
-		print("Session captions {} stored".format(session_id))
+		if captions!=[]:
+			store_captions(captions, db_file=db_file)
+			print("Session captions {} stored".format(session_id))
+		else:
+			print("Session {} has no captions".format(session_id))
 	except DuplicateSessionError as e:
 		print(str(e))
 

@@ -5,7 +5,7 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+// import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -49,7 +49,7 @@ function InformationTab(props) {
 	return (
 		<ul className={classes.leftAlignList}>
 			<li>Site ID: {props.session.site_id}</li>
-			<li><a href={props.session.video_url} target="_blank">Youtube URL</a></li>
+			<li><a href={props.session.url} target="_blank">Youtube URL</a></li>
 			<li>Created At: {props.session.date}</li>
 		</ul>
 	);

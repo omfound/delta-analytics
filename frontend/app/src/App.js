@@ -51,11 +51,11 @@ function App() {
   // const endDateString = moment();
   // const startDateString = endDateString.clone().subtract(1, 'week');
   // ~ Some good defaults for example DB
-  const endDateString = moment('2018-09-01');
-  const startDateString = moment('2018-08-27');
+
+  const startDateString = moment('2019-01-01');
+  const endDateString = moment('2019-01-27');
 
   // Set up query builder utilities
-
   const buildQueryString = function(start_date, end_date, topic_ids, keyword) {
     let formatted_topic_ids = '';
     if(topic_ids.length > 0) {
