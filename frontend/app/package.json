@@ -8,7 +8,7 @@
     "@material-ui/styles": "^4.1.2",
     "@nivo/pie": "^0.59.0",
     "axios": "^0.18.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-player": "^1.11.1",
